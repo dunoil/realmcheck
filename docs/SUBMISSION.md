@@ -21,7 +21,7 @@ Where a field is marked TBD, the value does not exist yet.
 | Track / category | None. The hackathon has no tracks or themes: "Build ANYTHING real on the Gno.land testnet." Leave any track field blank or select none; do not invent a track. |
 | Public repo URL | https://github.com/dunoil/realmcheck |
 | Deployment link (live testnet deployment) | https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck (LIVE, verified 27 Nov 2026; all 7 packages enabled, reports #1 and #2 stored on chain; see checklist item 4.) |
-| Live demo URL (web UI) | https://dunoil.github.io/realmcheck/ (LIVE since 27 Nov 2026 16:35 WITA; verified HTTP 200 and renders the app. A redeploy is due after the post-deploy UI copy push, checklist item 8.) |
+| Live demo URL (web UI) | https://dunoil.github.io/realmcheck/ (LIVE since 27 Nov 2026 16:35 WITA; verified HTTP 200 and renders the app. Redeployed 27 Nov 2026 18:15 WITA after the post-deploy UI copy push: workflow run 45980432341, success in 30s, serves the updated UI with the deployed realm.) |
 | Demo video URL | TBD. A local-chain cut exists (docs/demo-video/realmcheck-demo.mp4, 107s, recorded 27 Nov 2026); the Onyx re-record is still due, and the video is not uploaded anywhere yet. Do not submit without it: a demo video is required. |
 | Team | Solo. Builder: Duan, DoraHacks username dunoil. |
 | Tags (if the form asks) | Go, Blockchain, Smart Contracts, Layer 1, dApps, AI. These are the tags listed on the hackathon page. |
@@ -104,8 +104,11 @@ Status as of 27 Nov 2026.
   docs/ONYX-DEPLOY.md sections 8 and 10 and checklist item 4.
 - **GitHub Pages live check.** DONE 27 Nov 2026 16:35 WITA:
   https://dunoil.github.io/realmcheck/ returns HTTP 200 and renders
-  the app. A redeploy is still due after the post-deploy UI copy is
-  applied (checklist item 8).
+  the app. Redeployed 27 Nov 2026 18:15 WITA after the post-deploy UI
+  copy push (workflow run 45980432341, success in 30s); the live
+  bundle is the updated UI (deployer realm, "Live on Onyx", new
+  manifest with the deployed demo paths), verified by fetching the
+  served JS.
 - **Adena live test.** The Adena connect flow is implemented but
   disabled; the live test (real extension, funded key, save one
   report) is still pending. It is not a submission blocker: the
