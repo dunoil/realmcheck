@@ -1,14 +1,20 @@
 # RealmCheck demo video
 
-Status: RECORDED and QA PASSED 27 Nov 2026 against the LOCAL gnodev
-chain (chain ID `dev`, RPC `http://127.0.0.1:26657`, gnoweb
-`http://127.0.0.1:8888`). Deliverable:
-`docs/demo-video/realmcheck-demo.mp4`, 107.0 seconds, 1920x1080,
-29.3 fps, 8,036,351 bytes, with Piper narration and burned-in
-captions. The Onyx re-record below still applies once the deploy
-lands; this cut is the local-chain record, not the submission cut.
+Status: RECORDED and QA PASSED 27 Nov 2026 against the Onyx testnet
+(chain ID `onyx-1`, RPC `https://rpc.onyx.testnets.gno.land`,
+gnoweb `https://onyx.testnets.gno.land`). Deliverable:
+`docs/demo-video/realmcheck-demo.mp4`, 103.0 seconds, 1920x1080,
+29.99 fps, 8,335,311 bytes, with Piper narration and burned-in
+captions. Full log: `docs/demo-video/work/qa-onyx.log`. The local
+chain cut is kept as `docs/demo-video/realmcheck-demo-local.mp4`
+(107.0 seconds, log `docs/demo-video/work/qa.log`); this Onyx cut
+is the submission cut.
 
 ## Why local, not Onyx
+
+This section is the record of the first cut. It is superseded by the
+Onyx re-record of 27 Nov 2026 (see "Onyx re-record" below, marked
+DONE); the local cut is kept as `realmcheck-demo-local.mp4`.
 
 The DoraHacks submission requires a demo video showing the product
 working. The research report
@@ -30,16 +36,20 @@ exact follow-up run.
 
 | Realm | Score | Findings |
 | --- | --- | --- |
-| `gno.land/r/dunoil/vulnmint` | 75 | 1: RC-02 critical, Unrestricted mint, line 41 |
-| `gno.land/r/dunoil/adminbackdoor` | 37 | 4: RC-01 high line 105, RC-03 critical line 75, RC-07 medium line 84, RC-08 high line 53 |
+| `gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint` | 75 | 1: RC-02 critical, Unrestricted mint, line 41 |
+| `gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/adminbackdoor` | 37 | 4: RC-01 high line 105, RC-03 critical line 75, RC-07 medium line 84, RC-08 high line 53 |
 
-On-chain reports on the local chain used for the recording: report #1
-vulnmint score 75 (tx
-`4V1s9MAC5jFXuhvmqERllSjTPcP5vFbDvAOgg733vQE=`, height 3), report #2
-adminbackdoor score 37 (tx
-`RpQVsoJ14PC5/TRxaNAWRnU4WWVcMT1PU2Ns4vxEef8=`, height 5). Auditor for
-both: `g1yzqhuxczln72kwm9pstcmjerhnu0uverkuyz4h` (local dev key
-`realmcheck-dev`).
+On-chain reports on Onyx used for the recording, verified with
+`ReportCount()` (2) plus `GetReport(1)`, `GetReport(2)`, and
+`LatestReport` for both realms before recording; neither report was
+submitted again, recording only reads them: report #1 vulnmint
+score 75 (tx
+`OSWTRLJrmBFTN0o4mAygIgF4+vssHaI7P7WvpU3q1T8=`, height 1448446),
+report #2 adminbackdoor score 37 (tx
+`GrhQXkQ4N+8OvWqfj5zSArTy/ns+hdQSulpBdV1hVuk=`, height 1448498).
+Auditor for both:
+`g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu` (deployer key
+`realmcheck-onyx`).
 
 ## Narration script (about 100 seconds)
 
@@ -67,13 +77,13 @@ cards and the eight rule chips RC-01 to RC-08.
 ### Scene 2, run the audit, about 24 seconds
 
 "Paste any realm path. Here is vuln mint, a demo token realm deployed
-on a local test chain. RealmCheck fetches its source live from the
+on the Onyx testnet. RealmCheck fetches its source live from the
 chain and runs eight deterministic rules over it. No language model in
 the score, so the same source always gives the same result."
 
 Shot: the realm path is typed into the search box
-(`gno.land/r/dunoil/vulnmint`), "Audit realm" is clicked, the report
-appears with the score ring.
+(`gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint`),
+"Audit realm" is clicked, the report appears with the score ring.
 
 ### Scene 3, the report, about 22 seconds
 
@@ -92,13 +102,13 @@ plus the risk, attacker, and fix text.
 
 "Five demo realms prove the rules work. Admin backdoor, a treasury
 with a single hard coded admin, scores thirty seven, with four
-findings. These run locally in the browser until the realms deploy to
-the Onyx testnet."
+findings."
 
-Shot: the "Try the demo realms" cards, then "Audit adminbackdoor
-locally" runs and its report shows score 37 with 4 findings. The UI
-labels this a "Local demo report": the sources are bundled with the
-page and audited in the browser, not fetched from Onyx.
+Shot: the "Try the demo realms" cards, then "Audit adminbackdoor"
+runs and its report shows score 37 with 4 findings. The section
+carries the "Live on Onyx" badge; the audit fetches the live source
+from Onyx, and there is no local-demo label and no bundled-copy
+banner in the shot.
 
 ### Scene 5, the report stored on chain, about 20 seconds
 
@@ -109,8 +119,11 @@ renders its own page, listing every stored report."
 
 Shot: "View stored report" loads stored report #1 for vulnmint, score
 75, from the chain. Then the gnoweb Render page for
-`gno.land/r/dunoil/realmcheck` lists "#1 gno.land/r/dunoil/vulnmint
-score 75" and "#2 gno.land/r/dunoil/adminbackdoor score 37".
+`gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck` lists
+"#1 gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint
+score 75" and "#2
+gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/adminbackdoor
+score 37".
 
 ### Scene 6, closing card, about 8 seconds
 
@@ -168,17 +181,56 @@ Tool chain, all on this VM, nothing paid:
   with `drawtext` on the UI zinc background (#09090b) with emerald
   (#10b981) accents.
 
+### Onyx re-record (27 Nov 2026, the submission cut)
+
+Same tool chain, only the network changed. UI rebuilt with the Onyx
+defaults (plain `npm run build` in `ui/`, no `VITE_` overrides) and
+served with `vite preview` on `http://127.0.0.1:4173`. Both stored
+reports were verified on chain before recording (`ReportCount()` is
+2) and were NOT submitted again. The audit driver was re-run against
+Onyx (`node scripts/verify-live-audit.mjs` for both demo realms and
+`node ui/scripts/smoke-onyx.mjs` for vulnmint) and both reports read
+back on chain. Narration re-rendered with Piper for the changed
+lines only (scene 2 and scene 4); the rest of the script is
+unchanged. Scene 4 was shortened 17s to 13s because the caveat
+sentence was dropped, so the final cut is 103.0s, not 107.0s.
+`record.mjs` changed only where the Onyx cut requires it: the typed
+realm path, the gnoweb Render URL, the scene 4 button
+("Audit adminbackdoor", no "locally") and its live-report wait
+condition, and the browser proxy (see below).
+
+The known risk from the plan hit and was fixed: headed Chromium
+under Xvfb could not reach the Onyx RPC directly. Passing the VM
+egress proxy URL with embedded credentials to `--proxy-server`
+fails every fetch with `net::ERR_NO_SUPPORTED_PROXIES`, and
+answering the proxy 407 over the CDP Fetch domain hung the probe.
+The fix is `docs/demo-video/work/relay-proxy.mjs`, a local
+unauthenticated forward proxy on 127.0.0.1:18080 that adds the
+Proxy-Authorization header from the VM proxy env vars at runtime
+(never written to disk) and forwards to the egress proxy.
+`record.mjs` starts it when it is not already running and passes
+`--proxy-server=http://127.0.0.1:18080` plus
+`--proxy-bypass-list=127.0.0.1,localhost` (without the bypass list
+the preview itself goes through the egress proxy and never loads).
+A probe run (`probe-onyx-browser.mjs`) confirmed live data in all
+three views before recording: the UI live audit shows the score
+ring from a live fetch with no bundled-copy fallback banner, the
+demo audit shows the "Live on Onyx" badge, and the gnoweb Render
+page lists both stored reports. The first relay died mid-probe
+because a plain-HTTP request crashed it (Node rejected the Host
+header) and it was a child of a finished exec session; the relay
+is now a raw TCP forwarder that cannot crash on a bad request, and
+it runs detached or as a child of `record.mjs`.
+
 ## Known on-screen artifacts (disclosed, not hidden)
 
-- The UI header badge reads "Onyx testnet, onyx-1" and some helper
-  text mentions Onyx. That badge is hardcoded in `ui/src/App.tsx`
-  and the build used for this recording points at the local chain.
-  The narration says "local test chain" where the footage is local,
-  and this file states the fact. The Onyx re-record below fixes it
-  for real.
-- The demo showcase section says the five demo realms "do not exist
-  on Onyx yet; they deploy with the M6 release". True at recording
-  time; the re-record updates it by re-running the deploy.
+- RESOLVED by the Onyx re-record: the UI header badge reads "Onyx
+  testnet, onyx-1" and the footage is now Onyx too, so the badge is
+  correct. The narration no longer says "local test chain".
+- RESOLVED by the Onyx re-record: the demo showcase section used to
+  say the five demo realms "do not exist on Onyx yet; they deploy
+  with the M6 release". They are live on Onyx now, and the section
+  carries the "Live on Onyx" badge.
 - The live audit shows a source SHA-256 of `3499e6917c283aa3...`
   while the stored report (and the audit driver) show
   `f8616d8b7c69e820...` for the same vulnmint source. Both are
@@ -195,7 +247,42 @@ Tool chain, all on this VM, nothing paid:
   stored report being loaded from the chain instead, which is the
   proof that matters.
 
-## QA (27 Nov 2026, final cut)
+## QA (27 Nov 2026, Onyx cut, submission cut)
+
+Result: PASS. Full log: `docs/demo-video/work/qa-onyx.log`.
+
+- File: 103.000 seconds, 1920x1080, H.264, 3089 frames (29.99 fps
+  effective), 8,335,311 bytes, AAC 128k.
+- Frames extracted at every scene boundary and at the score ring,
+  the explain view, the demo cards, the stored report, and the
+  Render page: UI text readable at 1080p, no clipped text, no
+  horizontal overflow, no browser chrome in any frame, captions
+  match the spoken words. The typed path is the Onyx vulnmint path,
+  the demo button reads "Audit adminbackdoor" with the "Live on
+  Onyx" badge, the stored report shows Report #1 at height 1448446
+  with auditor g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu, and the
+  Render page lists reports #1 (vulnmint, 75) and #2 (adminbackdoor,
+  37) on Onyx.
+- Audio: narration loudness -16.73 LUFS integrated, true peak
+  -1.32 dBTP, mean -17.6 dB, max -1.3 dB, no clipping. Silences of
+  0.6 seconds or more are only the 7 inter-scene gaps (2.5 to 3.5
+  seconds each) plus the silent 3.4 second title card and 1.4
+  seconds at the end; in every gap the picture keeps moving, so
+  there is no dead stretch. Narration pace: 224 words in 86.51s,
+  155 wpm overall (145 to 170 wpm per scene, closing line 125 wpm
+  as it spells out the URL), no tempo fitting.
+- Intelligibility: the final audio was transcribed with whisper
+  tiny.en (`docs/demo-video/work/qa-transcript-onyx.txt`). All 21
+  segments present, in order, numbers correct (75 out of 100, one
+  finding, line 41, 37, four findings, report number one, deployed
+  on the Onyx Testnet). The tiny model garbles proper nouns as in
+  the local cut; the burned-in captions carry the exact spellings
+  for every name and number.
+- Facts: every number spoken (75, 1 finding, RC-02, line 41, 37, 4
+  findings) matches the on-screen report, the stored on-chain
+  reports, and the ground truth table above.
+
+## QA (27 Nov 2026, local cut, kept for the record)
 
 Result: PASS. Full log: `docs/demo-video/work/qa.log`.
 
@@ -226,8 +313,9 @@ Result: PASS. Full log: `docs/demo-video/work/qa.log`.
 
 ## Onyx re-record (follow-up step, after the M6 deploy)
 
-Do not reuse this cut for the submission once Onyx is live; re-record
-with the same script and the same driver, changing only the network:
+DONE 27 Nov 2026. The Onyx cut above is the result; the steps below
+are kept as the record of what was done. Do not reuse the local cut
+for the submission.
 
 1. Deploy to Onyx with `scripts/deploy-onyx.sh` (see
    `docs/ONYX-DEPLOY.md`): realmcheck report realm, the auditrules
@@ -237,28 +325,35 @@ with the same script and the same driver, changing only the network:
    `ui/`, no `VITE_` overrides) and serve it with `vite preview`.
    The header badge will then be correct.
 3. Re-run the audit driver against Onyx
-   (`node ui/scripts/smoke-onyx.mjs`) and re-submit both reports on
-   Onyx so the stored reports exist there. Record the new report
-   IDs, tx hashes, and heights in this file.
-4. Re-run `docs/demo-video/work/record.mjs` unchanged, except the
-   scene 2 and scene 5 narration lines: drop "on a local test chain"
-   and say "deployed on the Onyx testnet", and drop the scene 4
-   caveat ("These run locally in the browser until the realms deploy
-   to the Onyx testnet") since the demo cards will then audit live
-   from the chain. Re-render the narration for the changed lines
-   only; the rest of the script is unchanged.
-5. The Render page shot becomes
-   `https://onyx.testnets.gno.land/r/dunoil/realmcheck` (or the final
-   deployer namespace if it changes; update the script line if the
-   realm path changes).
-6. Re-run the QA steps above on the new cut, replace
-   `docs/demo-video/realmcheck-demo.mp4`, and update the status line
-   and ground truth table at the top of this file. Keep this local
-   cut as `docs/demo-video/realmcheck-demo-local.mp4` for the record.
+   (`node ui/scripts/smoke-onyx.mjs` and
+   `node scripts/verify-live-audit.mjs`). DONE: both demo realms
+   audit live (vulnmint 75, adminbackdoor 37) and both stored
+   reports read back on chain. The reports were already stored on
+   Onyx (ReportCount() is 2) and were NOT submitted again, to avoid
+   duplicates. Their IDs, tx hashes, and heights are recorded in
+   the ground truth section above.
+4. Re-run `docs/demo-video/work/record.mjs` with only the Onyx
+   changes: scene 2 narration drops "on a local test chain" and
+   says "deployed on the Onyx testnet", the scene 4 caveat ("These
+   run locally in the browser until the realms deploy to the Onyx
+   testnet") is dropped since the demo cards audit live from the
+   chain, and the typed path and Render URL use the deployer
+   namespace. Narration re-rendered for the changed lines only;
+   the rest of the script is unchanged.
+5. The Render page shot is now
+   `https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck`.
+6. Re-ran the QA steps above on the new cut (PASS, see the Onyx QA
+   section), replaced `docs/demo-video/realmcheck-demo.mp4`, and
+   updated the status line and ground truth table at the top of
+   this file. The local cut is kept as
+   `docs/demo-video/realmcheck-demo-local.mp4` for the record.
 
 ## Files
 
-- `docs/demo-video/realmcheck-demo.mp4`: the finished video.
+- `docs/demo-video/realmcheck-demo.mp4`: the finished video (Onyx
+  cut, 103.0s).
+- `docs/demo-video/realmcheck-demo-local.mp4`: the local-chain cut
+  (107.0s), kept for the record.
 - `docs/demo-video/work/`: recording driver (`record.mjs`), per-scene
   narration WAVs and the TTS render script, the Piper binary and
   voice model, proof of concept captures, chain and deploy logs, and
