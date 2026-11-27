@@ -1,0 +1,78 @@
+{
+  "adminbackdoor.gno": [
+    {
+      "line": 105,
+      "ruleID": "RC-01",
+      "severity": "high",
+      "title": "Sensitive function without caller check"
+    },
+    {
+      "line": 75,
+      "ruleID": "RC-03",
+      "severity": "critical",
+      "title": "Single admin backdoor"
+    },
+    {
+      "line": 84,
+      "ruleID": "RC-07",
+      "severity": "medium",
+      "title": "Unchecked external realm call"
+    },
+    {
+      "line": 53,
+      "ruleID": "RC-08",
+      "severity": "high",
+      "title": "Public state mutation without guard"
+    }
+  ],
+  "greedystore.gno": [
+    {
+      "line": 47,
+      "ruleID": "RC-04",
+      "severity": "medium",
+      "title": "Unbounded storage growth"
+    }
+  ],
+  "luckydice.gno": [
+    {
+      "line": 61,
+      "ruleID": "RC-05",
+      "severity": "high",
+      "title": "Funds accepted without a check"
+    },
+    {
+      "line": 69,
+      "ruleID": "RC-06",
+      "severity": "medium",
+      "title": "Weak randomness"
+    },
+    {
+      "line": 103,
+      "ruleID": "RC-08",
+      "severity": "high",
+      "title": "Public state mutation without guard"
+    }
+  ],
+  "unguardedvault.gno": [
+    {
+      "line": 48,
+      "ruleID": "RC-05",
+      "severity": "high",
+      "title": "Funds accepted without a check"
+    },
+    {
+      "line": 51,
+      "ruleID": "RC-08",
+      "severity": "high",
+      "title": "Public state mutation without guard"
+    }
+  ],
+  "vulnmint.gno": [
+    {
+      "line": 41,
+      "ruleID": "RC-02",
+      "severity": "critical",
+      "title": "Unrestricted mint"
+    }
+  ]
+}

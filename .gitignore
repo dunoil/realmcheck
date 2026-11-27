@@ -1,0 +1,36 @@
+# RealmCheck: local logs, work dirs, and build output stay out of the repo.
+#
+# Why: several *.log files contain a gnodev-generated throwaway
+# default-account mnemonic (gnodev prints one on every local chain start).
+# That mnemonic is for a local-only test account, but a mnemonic is a
+# mnemonic: no log file is ever committed. Work dirs hold transaction
+# outputs and staged copies; the upstream gno-mcp clone is a nested git
+# repo and is reproducible from its pinned commit instead.
+
+# Logs (includes gnodev-local.log and every gnodev run log)
+*.log
+
+# Runtime state (stale process ids, not source)
+*.pid
+
+# Local work and staging dirs (transaction outputs, staged deploy copies)
+scripts/e2e-work/
+scripts/e2e-work-stage/
+scripts/onyx-deploy-work/
+agent/m5-work/
+agent/stage/
+m4-verify/
+scratch/
+
+# Reference clone of github.com/gnoverse/gno-mcp (pinned commit e065fbc).
+# It is a nested git repo; re-clone it instead of committing it.
+agent/gno-mcp-upstream/
+
+# UI build output and dependencies
+ui/node_modules/
+ui/dist/
+node_modules/
+dist/
+
+# OS and editor files
+.DS_Store

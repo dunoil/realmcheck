@@ -1,0 +1,138 @@
+{
+  "generatedAt": "2026-11-27T06:53:07.745Z",
+  "note": "Local demo sources, bundled with the UI. These realms do not exist on Onyx yet; they deploy with the M6 release.",
+  "realms": [
+    {
+      "name": "vulnmint",
+      "realmPath": "gno.land/r/dunoil/vulnmint",
+      "vulnerability": "A GRC20-like token whose Mint has no access control: anyone can mint any amount to any address.",
+      "files": [
+        "vulnmint.gno"
+      ],
+      "expectedFindings": [
+        {
+          "line": 41,
+          "ruleID": "RC-02",
+          "severity": "critical",
+          "title": "Unrestricted mint",
+          "file": "vulnmint.gno"
+        }
+      ],
+      "expectedScore": 75
+    },
+    {
+      "name": "unguardedvault",
+      "realmPath": "gno.land/r/dunoil/unguardedvault",
+      "vulnerability": "A vault that credits deposits without verifying any payment, and lets anyone call Withdraw to take anyone's funds.",
+      "files": [
+        "unguardedvault.gno"
+      ],
+      "expectedFindings": [
+        {
+          "line": 48,
+          "ruleID": "RC-05",
+          "severity": "high",
+          "title": "Funds accepted without a check",
+          "file": "unguardedvault.gno"
+        },
+        {
+          "line": 51,
+          "ruleID": "RC-08",
+          "severity": "high",
+          "title": "Public state mutation without guard",
+          "file": "unguardedvault.gno"
+        }
+      ],
+      "expectedScore": 70
+    },
+    {
+      "name": "greedystore",
+      "realmPath": "gno.land/r/dunoil/greedystore",
+      "vulnerability": "A registry that appends every entry to a persistent list with no cap, so storage grows without bound.",
+      "files": [
+        "greedystore.gno"
+      ],
+      "expectedFindings": [
+        {
+          "line": 47,
+          "ruleID": "RC-04",
+          "severity": "medium",
+          "title": "Unbounded storage growth",
+          "file": "greedystore.gno"
+        }
+      ],
+      "expectedScore": 92
+    },
+    {
+      "name": "luckydice",
+      "realmPath": "gno.land/r/dunoil/luckydice",
+      "vulnerability": "A dice game whose winning number comes from block height and block time, readable in advance by anyone.",
+      "files": [
+        "luckydice.gno"
+      ],
+      "expectedFindings": [
+        {
+          "line": 61,
+          "ruleID": "RC-05",
+          "severity": "high",
+          "title": "Funds accepted without a check",
+          "file": "luckydice.gno"
+        },
+        {
+          "line": 69,
+          "ruleID": "RC-06",
+          "severity": "medium",
+          "title": "Weak randomness",
+          "file": "luckydice.gno"
+        },
+        {
+          "line": 103,
+          "ruleID": "RC-08",
+          "severity": "high",
+          "title": "Public state mutation without guard",
+          "file": "luckydice.gno"
+        }
+      ],
+      "expectedScore": 62
+    },
+    {
+      "name": "adminbackdoor",
+      "realmPath": "gno.land/r/dunoil/adminbackdoor",
+      "vulnerability": "A treasury where a single hard-coded admin can drain all funds at once, and bonus payouts ignore the result of an external realm call.",
+      "files": [
+        "adminbackdoor.gno"
+      ],
+      "expectedFindings": [
+        {
+          "line": 105,
+          "ruleID": "RC-01",
+          "severity": "high",
+          "title": "Sensitive function without caller check",
+          "file": "adminbackdoor.gno"
+        },
+        {
+          "line": 75,
+          "ruleID": "RC-03",
+          "severity": "critical",
+          "title": "Single admin backdoor",
+          "file": "adminbackdoor.gno"
+        },
+        {
+          "line": 84,
+          "ruleID": "RC-07",
+          "severity": "medium",
+          "title": "Unchecked external realm call",
+          "file": "adminbackdoor.gno"
+        },
+        {
+          "line": 53,
+          "ruleID": "RC-08",
+          "severity": "high",
+          "title": "Public state mutation without guard",
+          "file": "adminbackdoor.gno"
+        }
+      ],
+      "expectedScore": 37
+    }
+  ]
+}
