@@ -20,7 +20,8 @@
 
 set -u
 
-PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+mkdir -p "$PROJECT/scripts/offline-work"
 LOG="$PROJECT/scripts/offline-work/approval-watch.log"
 RPC="https://rpc.onyx.testnets.gno.land:443"
 DEPLOYER="g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu"
