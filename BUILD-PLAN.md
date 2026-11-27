@@ -57,7 +57,7 @@ Phase 2 refines this list against the real Gnolang APIs (std.Coin, std.OriginCal
 | M3 | 4 Dec | Report realm done (store/query/score + Render), UI skeleton calling it (DONE 27 Nov: realm verified end to end on gnodev local with a real audit; UI skeleton done and verified: build outputs static dist/, dev serves HTTP 200, audit port matches Gno Audit() exactly on all 5 demo realms, live smoke test against Onyx: gov/dao 85/100, sys/params 55/100) |
 | M4 | 7 Dec | UI polished, end-to-end audit flow working locally on gnodev (DONE 27 Nov, ahead of schedule: all 8 rules fire on the demos, false positives fixed, UI polished with explain view and demo showcase, local E2E harness PASSED end to end; see VERIFY-M4.md) |
 | M5 | 9 Dec | gnomcp agent mode done (config + skill + one agent-run audit) (DONE 27 Nov, ahead of schedule: config + skill + agent-run audit PASSED on local chain; gnomcp server itself NOT built or run on this VM, blocked by an execution-risk check, verified from docs only, see VERIFY-M5.md) |
-| M6 | 12 Dec | Onyx deployment done, end-to-end test against a real realm, issues fixed |
+| M6 | 12 Dec | Onyx deployment done, end-to-end test against a real realm, issues fixed (PREP DONE 27 Nov: public repo live, deploy script validated on a local chain, Adena implemented; DEPLOY BLOCKED on two owner steps: faucet funds via captcha, and a direct-egress machine because gnokey cannot reach Onyx from this VM; see VERIFY-M6-PREP.md) |
 | M7 | 15 Dec | Demo video recorded, README done, submission package assembled |
 | M8 | 17 Dec | Submission package ready, reported to Duan for final approval |
 | Submit | 18 Dec | Submit only after Duan's explicit final approval |
