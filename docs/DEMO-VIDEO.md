@@ -4,9 +4,13 @@ Status: RECORDED and QA PASSED 27 Nov 2026 against the Onyx testnet
 (chain ID `onyx-1`, RPC `https://rpc.onyx.testnets.gno.land`,
 gnoweb `https://onyx.testnets.gno.land`). Deliverable:
 `docs/demo-video/realmcheck-demo.mp4`, 103.0 seconds, 1920x1080,
-29.99 fps, 8,335,311 bytes, with Piper narration and burned-in
-captions. Full log: `docs/demo-video/work/qa-onyx.log`. The local
-chain cut is kept as `docs/demo-video/realmcheck-demo-local.mp4`
+29.99 fps, 8,608,908 bytes, with Piper narration and burned-in
+captions. Full log: `docs/demo-video/work/qa-onyx-v2.log`. Scenes
+s2, s4, s5a were re-recorded 27 Nov 2026 after the source-hash
+display fix (see "Known on-screen artifacts"); the pre-fix Onyx cut
+is kept as `docs/demo-video/work/realmcheck-demo-onyx-v1.mp4`
+(8,335,311 bytes, log `docs/demo-video/work/qa-onyx.log`). The
+local chain cut is kept as `docs/demo-video/realmcheck-demo-local.mp4`
 (107.0 seconds, log `docs/demo-video/work/qa.log`); this Onyx cut
 is the submission cut.
 
@@ -231,15 +235,17 @@ it runs detached or as a child of `record.mjs`.
   say the five demo realms "do not exist on Onyx yet; they deploy
   with the M6 release". They are live on Onyx now, and the section
   carries the "Live on Onyx" badge.
-- The live audit shows a source SHA-256 of `3499e6917c283aa3...`
-  while the stored report (and the audit driver) show
-  `f8616d8b7c69e820...` for the same vulnmint source. Both are
-  correct for their own input: the UI hashes the combined text
-  `===== vulnmint.gno =====` plus the source (`App.tsx`, `runAudit`),
-  while the audit driver hashes the raw source bytes. Scores and
-  findings agree exactly; only the hash input differs. Flagged here
-  so the coordinator can decide whether the two hashes should be
-  unified; the video does not quote either hash in narration.
+- RESOLVED by the source-hash fix and the 27 Nov 2026 re-record
+  of scenes s2, s4, s5a: the UI now hashes the audited bytes
+  (`sourceHashFor` in `ui/src/lib/gnoRpc.js`), so the live audit
+  and the stored report show the same hash. The video now shows
+  `f8616d8b7c69e820...` live and stored for vulnmint and
+  `573692bb78403495...` live for adminbackdoor; the old values
+  (`3499e6917c283aa3...`, `d5c52c4af5cc0255...`) appear nowhere
+  legible in the cut (full log `docs/demo-video/work/qa-onyx-v2.log`).
+  Before the fix, the live audit hashed the combined text
+  `===== vulnmint.gno =====` plus the source while the stored
+  report hashed the raw source bytes.
 - The "Save this report on chain" panel is not clicked in the video.
   The reports were already stored before recording (via the same
   `gnokey maketx call SubmitReport` the panel shows), and clicking
@@ -281,6 +287,28 @@ Result: PASS. Full log: `docs/demo-video/work/qa-onyx.log`.
 - Facts: every number spoken (75, 1 finding, RC-02, line 41, 37, 4
   findings) matches the on-screen report, the stored on-chain
   reports, and the ground truth table above.
+
+## QA (27 Nov 2026, Onyx cut v2, after the source-hash fix)
+
+Result: PASS. Full log: `docs/demo-video/work/qa-onyx-v2.log`.
+
+Scenes s2, s4, s5a re-recorded against the fixed UI (preflight
+`work/preflight-s5a.mjs` PASSED: vulnmint 75/RC-02@41 hash
+f8616d8b7c69e820..., adminbackdoor 37/4 findings hash
+573692bb78403495..., ReportCount() is 2; nothing re-submitted).
+The cut is 103.000 seconds, 1920x1080, 29.99 fps, 8,608,908 bytes,
+sha256
+c48d2b76610c0468df7de03d9b2fdfd2b57043be018f705435ccb6164e892095.
+All 11 QA frames checked: the three hash frames now show the new
+hashes (f-33 vulnmint live f8616d8b..., f-71 adminbackdoor live
+573692bb..., f-82 live and stored f8616d8b... agreeing in one frame),
+and the unchanged scenes are pixel-identical to the first Onyx cut.
+Audio is unchanged: -16.73 LUFS, true peak -1.32 dBTP, mean -17.6
+dB, max -1.3 dB, same 7 silence gaps; whisper transcript
+byte-identical to the first cut (21 segments, all numbers correct).
+The old hashes appear nowhere legible in this cut. This v2 cut
+supersedes the first Onyx cut (kept as
+`work/realmcheck-demo-onyx-v1.mp4`).
 
 ## QA (27 Nov 2026, local cut, kept for the record)
 

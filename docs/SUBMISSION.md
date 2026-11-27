@@ -87,7 +87,7 @@ Status as of 27 Nov 2026.
 | 10 | Demo video URL in the form | TBD. Depends on item 3. |
 | 11 | Duan final approval | TBD. M8, 17 Dec. Submit 18 Dec only after his explicit approval for that specific submission. |
 | 12 | KYC | DEFERRED. KYC is required only for winners at payout (deadline 22 Dec). Do not do any KYC now. |
-| 13 | Live source-hash display matches stored hash | DONE 27 Nov 2026 18:50 WITA. Manual click-through found the live view hashed the display string (filename header + source) while stored reports hash the raw source file, so the same source showed two different SHA-256 prefixes (vulnmint live 3499e691... vs stored f8616d8b...). Fixed in ui/src/lib/gnoRpc.js (new sourceHashFor) and ui/src/App.tsx (both audit paths): the live hash is now sha256 of the audited bytes, matching the stored convention and the save flow. Verified: npm run build passes, scripts/e2e-local.sh PASSED (UI fetchRealmFiles hash f8616d8b... equals the stored hash; local adminbackdoor hash matches its stored report). Video note: the Onyx cut shows the old live hash prefix 3499e691... in the vulnmint live-audit frame; re-record that scene before upload. |
+| 13 | Live source-hash display matches stored hash | DONE 27 Nov 2026 18:50 WITA. Manual click-through found the live view hashed the display string (filename header + source) while stored reports hash the raw source file, so the same source showed two different SHA-256 prefixes (vulnmint live 3499e691... vs stored f8616d8b...). Fixed in ui/src/lib/gnoRpc.js (new sourceHashFor) and ui/src/App.tsx (both audit paths): the live hash is now sha256 of the audited bytes, matching the stored convention and the save flow. Verified: npm run build passes, scripts/e2e-local.sh PASSED (UI fetchRealmFiles hash f8616d8b... equals the stored hash; local adminbackdoor hash matches its stored report). Video re-record DONE 27 Nov 11:00 WITA (scenes s2, s4, s5a re-recorded, QA passed, docs/demo-video/work/qa-onyx-v2.log); the video now shows the new hashes. |
 
 ## 3. What is still TBD
 
@@ -99,7 +99,10 @@ Status as of 27 Nov 2026.
   rules as verified, but the video must show the product working.
   NOTE 27 Nov 18:50 WITA: the source-hash display fix changed the
   live hash shown in the vulnmint audit frame (was 3499e691..., now
-  f8616d8b...); re-record that scene before upload.
+  f8616d8b...). DONE 27 Nov 11:00 WITA: scenes s2, s4, s5a
+  re-recorded against the fixed UI, QA passed
+  (docs/demo-video/work/qa-onyx-v2.log); the video now shows the
+  new hashes and is ready for upload once approved.
 - **Onyx deploy verification.** DONE 27 Nov 2026 18:06 WITA
   (10:06 UTC): all 7 packages live on Onyx, byte-verified against
   the repo, test report #1 (vulnmint, score 75) and report #2
