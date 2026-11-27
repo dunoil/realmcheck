@@ -41,3 +41,7 @@ scripts/txbin/txbin
 
 # Deployer key material (gnokey home): mnemonic, password, encrypted keybase. Never commit.
 .gnokey/
+
+# Demo video (mp4 goes to YouTube only at submission time, after explicit approval).
+# The script and storyboards (docs/DEMO-VIDEO.md) are committed; the video is not.
+docs/demo-video/

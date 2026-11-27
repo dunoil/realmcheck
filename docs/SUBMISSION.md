@@ -75,9 +75,9 @@ Status as of 27 Nov 2026.
 
 | # | Item | Status |
 | --- | --- | --- |
-| 1 | Repo public | DONE. https://github.com/dunoil/realmcheck, public, MIT, HEAD 16399c3. |
+| 1 | Repo public | DONE. https://github.com/dunoil/realmcheck, public, MIT, main branch. |
 | 2 | README done | DONE. Full README in the repo root (M7): what it is, why it can only exist on Gno.land, architecture, all 8 rules with weights, demo ground truth, UI use, agent mode with the honest gnomcp note, deploy steps, judging map, links. |
-| 3 | Demo video done | TBD. Not recorded yet (M7, due 15 Dec). Must show the product working: a live audit of a demo realm and a real Onyx realm, the explain view, and a stored report. Keep it short; the hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
+| 3 | Demo video done | RECORDED 27 Nov (local-chain cut): docs/demo-video/realmcheck-demo.mp4, 107s, 1920x1080, voiceover plus captions, QA passed (coordinator checked 5 frames). Shows a live audit of vulnmint (score 75, RC-02 at line 41), the explain view, and stored report #1. NOT YET the submission cut: re-record against Onyx after the deploy (see docs/DEMO-VIDEO.md), then upload to YouTube after Duan's approval. Keep it short; the hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
 | 4 | Onyx deploy verified | TBD. The deploy script is proven on a local chain and the signed bytes were proven to reach the Onyx node, but the deploy has NOT run: faucet funding is pending (owner browser step, captcha, https://faucet.gno.land, 100 GNOT to g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu). After funding, run `bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`, then verify all 7 paths resolve on gnoweb and the test report reads back (score 75, RC-02 at line 41). |
 | 5 | Name has no "Gno" prefix | DONE. The project is named RealmCheck. |
 | 6 | No mockups | DONE. Everything submitted is working code: rules, report realm, demo realms, UI, agent mode. No slides, no concept art, no mockup screens. |
