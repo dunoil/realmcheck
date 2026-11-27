@@ -78,10 +78,10 @@ Status as of 27 Nov 2026.
 | 1 | Repo public | DONE. https://github.com/dunoil/realmcheck, public, MIT, main branch. |
 | 2 | README done | DONE. Full README in the repo root (M7): what it is, why it can only exist on Gno.land, architecture, all 8 rules with weights, demo ground truth, UI use, agent mode with the honest gnomcp note, deploy steps, judging map, links. |
 | 3 | Demo video done | RECORDED 27 Nov (local-chain cut): docs/demo-video/realmcheck-demo.mp4, 107s, 1920x1080, voiceover plus captions, QA passed (coordinator checked 5 frames). Shows a live audit of vulnmint (score 75, RC-02 at line 41), the explain view, and stored report #1. NOT YET the submission cut: re-record against Onyx after the deploy (see docs/DEMO-VIDEO.md), then upload to YouTube after Duan's approval. Keep it short; the hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
-| 4 | Onyx deploy verified | TBD. The deploy script is proven on a local chain and the signed bytes were proven to reach the Onyx node, but the deploy has NOT run: faucet funding is pending (owner browser step, captcha, https://faucet.gno.land, 100 GNOT to g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu). After funding, run `bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`, then verify all 7 paths resolve on gnoweb and the test report reads back (score 75, RC-02 at line 41). |
+| 4 | Onyx deploy verified | SUBMITTED, PENDING APPROVAL. 27 Nov 2026 17:15 WITA: all 7 addpkg txs committed on Onyx (heights 1447578-1447589, tx hashes in scripts/offline-work/*-broadcast.json and docs/ONYX-DEPLOY.md section 10). Onyx stores new packages INERT until a package approver enables them: vm/qpkgmeta_json reports all 7 status inert, reason waiting for a package approver to enable it. GPAO (https://gpas.latest.testnets.gno.land) verdicts: 5 passed (auditrules, vulnmint, greedystore, luckydice, unguardedvault), 2 in review queue (realmcheck, adminbackdoor, the two with local imports). Observed enable lag is 2 to 5 hours after passing. When all 7 report live, re-run the deploy script (idempotent resume), then verify all 7 paths resolve on gnoweb and the test report reads back (score 75, RC-02 at line 41). |
 | 5 | Name has no "Gno" prefix | DONE. The project is named RealmCheck. |
 | 6 | No mockups | DONE. Everything submitted is working code: rules, report realm, demo realms, UI, agent mode. No slides, no concept art, no mockup screens. |
-| 7 | GitHub Pages live | TBD. The workflow (`.github/workflows/pages.yml`) is in the repo and the build passes, but Pages is not enabled. Owner step: repo Settings, Pages, Build and deployment, Source: GitHub Actions. Then push to `main` and verify https://dunoil.github.io/realmcheck/ returns HTTP 200 and renders the app. |
+| 7 | GitHub Pages live | DONE 27 Nov 2026 16:35 WITA. Workflow file committed via the GitHub web UI (afa31bc), Pages source set to GitHub Actions, first workflow run succeeded, https://dunoil.github.io/realmcheck/ verified HTTP 200 and rendering the full UI. |
 | 8 | Post-deploy UI copy applied | TBD. Drafted in section 5 below. Apply only after the Onyx deploy is verified (item 4). |
 | 9 | Live form re-checked | TBD. Re-check the live DoraHacks page before submitting (section 4). |
 | 10 | Demo video URL in the form | TBD. Depends on item 3. |
@@ -94,17 +94,16 @@ Status as of 27 Nov 2026.
   requirement with no artifact at all. Owner step near submission:
   Duan's own voice is not required by the hackathon rules as verified,
   but the video must show the product working.
-- **Onyx deploy verification.** All 7 gnoweb links in the README are
-  planned paths until the deploy runs and each path is checked live:
-  the package listing resolves, the deployed source byte-matches the
-  repo, and the test report reads back. The deployer key is unfunded
-  until the faucet step runs.
-- **GitHub Pages live check.** The workflow is ready and the build
-  passes locally (`npm run build` in `ui/`, 27 Nov 2026), but Pages
-  needs the repo-settings change, and the live URL has not been
-  fetched. Do not claim the site is live until a fetch of
-  https://dunoil.github.io/realmcheck/ returns HTTP 200 and the app
-  renders.
+- **Onyx deploy verification.** All 7 addpkg transactions committed
+  27 Nov 2026 17:15 WITA, but the packages are stored INERT pending
+  GPAO approval (see docs/ONYX-DEPLOY.md section 10). The 7 gnoweb
+  links in the README are planned paths until `vm/qpkgmeta_json`
+  reports all 7 live and the deploy script resume has verified them
+  byte-identical with the test report reading back.
+- **GitHub Pages live check.** DONE 27 Nov 2026 16:35 WITA:
+  https://dunoil.github.io/realmcheck/ returns HTTP 200 and renders
+  the app. A redeploy is still due after the post-deploy UI copy is
+  applied (checklist item 8).
 - **Adena live test.** The Adena connect flow is implemented but
   disabled; the live test (real extension, funded key, save one
   report) is still pending. It is not a submission blocker: the

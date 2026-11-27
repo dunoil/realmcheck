@@ -556,3 +556,139 @@ g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`. The funding creates the
 account on chain, so the `UnknownAddressError` goes away with it, and
 the deployer's account number and sequence will then come back from
 the step 2 query instead of 0 and 0.
+
+## 10. The inert-policy gate (found 27 Nov 2026, real Onyx deploy)
+
+Funding landed 27 Nov 2026 17:14 WITA (100 GNOT, faucet, browser
+Environment 2; Environment 1 failed on an IP rate limit). The real
+Onyx deploy ran 27 Nov 2026 17:15 WITA (09:15 UTC) with
+`bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer
+g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`. All 7 addpkg transactions
+committed with success, but NONE of the packages became callable.
+This section records exactly what happened, why, and how to resume.
+
+### 10.1 What the chain did
+
+| Package | Height | Tx hash (base64) | Gas used |
+| --- | --- | --- | --- |
+| auditrules | 1447578 | tmC0qxbqCj0X9XbScDid9Ib3Ob5hCzCEmNhRmn/aUQ8= | 58,136,226 |
+| realmcheck | 1447580 | DsniB0bUEh4NFOBTvNCHXw43xwYAiF5cRCGbaLxlwgU= | 10,793,168 |
+| vulnmint | 1447582 | W4AOXJVBNqxAy67PHV+fZFEOK3UyK+8Kycf7N0cy9h4= | 6,414,173 |
+| greedystore | 1447584 | JIXsJryUFgB4uWy71a3e3EveAnmOTTxACokUvZfJw7s= | 5,606,075 |
+| luckydice | 1447586 | 84EDSJbsI+Q70Co12VK+SxE9VGZyOXO6qdQcNH5c/+E= | 8,587,708 |
+| unguardedvault | 1447587 | Knuy7ZmdGFe3d3dyjhrRvlg5A6dFNjZq5xOOjaLszmY= | 7,599,715 |
+| adminbackdoor | 1447589 | 0iXscHXlKesorPPYTWqZezLdL8eZCF54LXGbtUoSeZM= | 8,843,432 |
+
+Full broadcast responses: `scripts/offline-work/addpkg-<name>-broadcast.json`.
+Account number 2550, sequences 0 to 6. Every `deliver_tx` log reads
+`msg:0,success:true,log:,events:[]`, no error in check_tx or
+deliver_tx. Balance after the 7 transactions: 99,020,000ugnot, down
+exactly 980,000ugnot (7 times the 140,000ugnot gas fee). No storage
+deposit was charged: under the inert policy the deposit is not taken
+at submit time.
+
+### 10.2 Why verification failed: the inert policy
+
+`vm/qfile` on every deployed path returns
+`InvalidPackageError: package "..." is not available`, and the
+deploy script therefore reported `RESULT: FAILED (deploy)`. The
+query method itself is correct: the same `vm/qfile` call returns a
+file listing for `gno.land/r/gov/dao` and `gno.land/r/sys/params`.
+
+Root cause, from the chain source (`gno.land/pkg/sdk/vm/keeper.go`,
+`AddPackage`, and `keeper_inert.go`): Onyx runs
+`CodeSubmissionPolicyInert`. Under it, `AddPackage` stores the
+package WITHOUT typechecking or execution. It becomes callable only
+after an approver sends `MsgEnablePackage`. While parked,
+`vm/qpkg_json` and `vm/qfile` both answer "package not found", the
+same as for a path nobody ever used. The local gnodev chain does not
+run this policy, which is why the M7 local rehearsal verified
+byte-identical files and the Onyx run did not.
+
+Authoritative status query: `vm/qpkgmeta_json` (ABCI, data is the
+hex-encoded path). For our packages it returns, for example:
+
+```json
+{"path":"gno.land/p/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/auditrules","status":"inert","creator":"g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu","height":1447578,"max_deposit":"100000000ugnot","reason":"waiting for a package approver to enable it","pending":true}
+```
+
+All 7 packages report `status: inert`, `pending: true`, with that
+reason, as of 27 Nov 2026 09:17 UTC. A control query for
+`gno.land/r/gov/dao` returns `status: live`.
+
+### 10.3 GPAO verdicts (the approval oracle)
+
+https://gpas.latest.testnets.gno.land ("gno.land package status:
+onyx"), mode automatic: "Packages that pass the checks are enabled
+automatically." The check pass runs about once a minute. Verdicts for
+our packages, 27 Nov 2026:
+
+- PASSED: auditrules 09:15:18Z, vulnmint 09:15:30Z, greedystore
+  09:15:36Z, luckydice 09:15:45Z, unguardedvault 09:15:48Z.
+- IN REVIEW QUEUE: realmcheck, adminbackdoor (no verdict time yet).
+
+The two queued packages are exactly the two with local imports
+(realmcheck imports `gno.land/p/.../auditrules`, adminbackdoor
+imports `gno.land/r/.../vulnmint`); the five that passed are all
+standalone. Working hypothesis: the checker cannot fully verify a
+package whose imports are not live yet, so dependents wait until
+their imports are enabled, then get checked, then enabled. Do not
+treat "in review queue" as a rejection: other packages sit in the
+queue for hours and later pass.
+
+Observed enable lag (same page, same day): a package that passed
+04:13:15Z is live; a package that passed 07:16:48Z is still inert at
+09:18Z. So enabling lags a pass by more than 2 hours and less than
+about 5 hours. Our five passed at 09:15Z, so plausibly live
+11:15-14:15Z (19:15-22:15 WITA); the two dependents then need another
+check plus enable cycle, possibly late 27 Nov or 28 Nov. There is no
+documented way to expedite, and no request form on the GPAO page.
+
+### 10.4 What NOT to do
+
+- Do NOT re-submit the packages. They are already stored on chain;
+  re-adding would re-park them, burn more fees, and reset the
+  approval clock if the checker keys on submit height.
+- Do NOT treat this as a deploy failure. The transactions succeeded;
+  activation is a chain-side approval gate, not a bug in the deploy
+  path. The offline-sign flow itself is fully proven on the real
+  chain now: 7 signed transactions, correct account number and
+  sequences, committed at consecutive heights.
+- Do NOT apply the post-deploy UI copy (docs/SUBMISSION.md section
+  5) yet. The realms are not callable until live, so the UI would
+  point at paths that still fail to fetch.
+
+### 10.5 Resume (when all 7 report live)
+
+Watch command (polls `vm/qpkgmeta_json` for all 7, every 15 min,
+up to 5 h; runs the resume automatically when all 7 are live):
+
+```bash
+bash scripts/approval-watch.sh
+# log: scripts/offline-work/approval-watch.log
+```
+
+Manual check for one package:
+
+```bash
+P="gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck"
+HEX=$(printf '%s' "$P" | od -An -tx1 | tr -d ' \n')
+curl -s -G "https://rpc.onyx.testnets.gno.land/abci_query" \
+  --data-urlencode "path=\"vm/qpkgmeta_json\"" \
+  --data-urlencode "data=0x$HEX"
+# want: "status":"live"
+```
+
+When all 7 are live, resume with the same script (idempotent: an
+already-deployed package verifies byte-identical and continues):
+
+```bash
+bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu
+```
+
+Then continue in order: on-chain verification and the test
+SubmitReport (the script does both), post-deploy UI per
+docs/SUBMISSION.md section 5, GitHub Pages redeploy check, Onyx demo
+video re-record per docs/DEMO-VIDEO.md, docs and commit. YouTube
+upload and the DoraHacks submission still need Duan's explicit
+approval.
