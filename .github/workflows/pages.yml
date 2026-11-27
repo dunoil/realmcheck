@@ -1,0 +1,81 @@
+# Deploy the RealmCheck UI (ui/) to GitHub Pages.
+#
+# Free, static only: the build output (ui/dist) is uploaded as the
+# Pages artifact. No server, no secrets, no paid service.
+#
+# The build uses relative asset paths (base: './' in ui/vite.config.ts),
+# so the site serves correctly under the project subpath:
+# https://dunoil.github.io/realmcheck/
+#
+# Owner step (one time, repo settings, cannot be done from this repo):
+# Settings, Pages, Build and deployment, Source: GitHub Actions.
+# After that, every push to main that touches ui/ deploys automatically.
+# Until Pages is enabled, this workflow will fail at the deploy job
+# with a "not configured" style error: that means the setting, not
+# the build, is missing.
+#
+# VITE_REALMCHECK_REALM is NOT set here yet on purpose: the UI default
+# is still the local placeholder namespace (gno.land/r/dunoil/realmcheck),
+# which is what the local end-to-end harness expects. Once the Onyx
+# deploy is verified, add it to the Build step env:
+#   VITE_REALMCHECK_REALM=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck
+# and see the post-deploy draft in docs/SUBMISSION.md. Do not set it
+# before the deploy is verified: "View stored report" would point at
+# a realm that does not exist on Onyx yet.
+
+name: Deploy UI to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ui/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Build
+        working-directory: ui
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ui/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
