@@ -4,7 +4,7 @@
 // end-to-end harness can point the UI at a local gnodev chain:
 //   VITE_GNO_RPC            (default https://rpc.onyx.testnets.gno.land)
 //   VITE_GNOWEB             (default https://onyx.testnets.gno.land)
-//   VITE_REALMCHECK_REALM   (default gno.land/r/dunoil/realmcheck)
+//   VITE_REALMCHECK_REALM   (default gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck)
 // In plain node (smoke tests) import.meta.env is undefined, so the
 // same names are read from process.env there, then the Onyx defaults.
 //
@@ -44,7 +44,7 @@ export const GNO_GNOWEB = envVar(
 );
 export const REALMCHECK_REALM = envVar(
   "VITE_REALMCHECK_REALM",
-  "gno.land/r/dunoil/realmcheck",
+  "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck",
 );
 
 export const ONYX_RPC = GNO_RPC;

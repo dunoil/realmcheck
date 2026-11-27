@@ -20,9 +20,9 @@ Where a field is marked TBD, the value does not exist yet.
 | Short description | RealmCheck is a deterministic auditor for Gno.land realms. Paste any realm path and get a risk score from 0 to 100, with findings that cite the exact source lines, plus a plain-English explanation of each finding and the fix pattern. Reports are stored on chain, so anyone can re-run the audit and compare. |
 | Track / category | None. The hackathon has no tracks or themes: "Build ANYTHING real on the Gno.land testnet." Leave any track field blank or select none; do not invent a track. |
 | Public repo URL | https://github.com/dunoil/realmcheck |
-| Deployment link (live testnet deployment) | https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck (PENDING: the Onyx deploy is not verified yet; see section 3. Do not paste this link until the deploy is verified.) |
-| Live demo URL (web UI) | https://dunoil.github.io/realmcheck/ (PENDING: GitHub Pages is not enabled yet; see section 3. Do not paste this link until the site is verified reachable.) |
-| Demo video URL | TBD. The video does not exist yet (M7, due 15 Dec). Do not submit without it: a demo video is required. |
+| Deployment link (live testnet deployment) | https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck (LIVE, verified 27 Nov 2026; all 7 packages enabled, reports #1 and #2 stored on chain; see checklist item 4.) |
+| Live demo URL (web UI) | https://dunoil.github.io/realmcheck/ (LIVE since 27 Nov 2026 16:35 WITA; verified HTTP 200 and renders the app. A redeploy is due after the post-deploy UI copy push, checklist item 8.) |
+| Demo video URL | TBD. A local-chain cut exists (docs/demo-video/realmcheck-demo.mp4, 107s, recorded 27 Nov 2026); the Onyx re-record is still due, and the video is not uploaded anywhere yet. Do not submit without it: a demo video is required. |
 | Team | Solo. Builder: Duan, DoraHacks username dunoil. |
 | Tags (if the form asks) | Go, Blockchain, Smart Contracts, Layer 1, dApps, AI. These are the tags listed on the hackathon page. |
 
@@ -78,11 +78,11 @@ Status as of 27 Nov 2026.
 | 1 | Repo public | DONE. https://github.com/dunoil/realmcheck, public, MIT, main branch. |
 | 2 | README done | DONE. Full README in the repo root (M7): what it is, why it can only exist on Gno.land, architecture, all 8 rules with weights, demo ground truth, UI use, agent mode with the honest gnomcp note, deploy steps, judging map, links. |
 | 3 | Demo video done | RECORDED 27 Nov (local-chain cut): docs/demo-video/realmcheck-demo.mp4, 107s, 1920x1080, voiceover plus captions, QA passed (coordinator checked 5 frames). Shows a live audit of vulnmint (score 75, RC-02 at line 41), the explain view, and stored report #1. NOT YET the submission cut: re-record against Onyx after the deploy (see docs/DEMO-VIDEO.md), then upload to YouTube after Duan's approval. Keep it short; the hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
-| 4 | Onyx deploy verified | SUBMITTED, PENDING APPROVAL. 27 Nov 2026 17:15 WITA: all 7 addpkg txs committed on Onyx (heights 1447578-1447589, tx hashes in scripts/offline-work/*-broadcast.json and docs/ONYX-DEPLOY.md section 10). Onyx stores new packages INERT until a package approver enables them: vm/qpkgmeta_json reports all 7 status inert, reason waiting for a package approver to enable it. GPAO (https://gpas.latest.testnets.gno.land) verdicts: 5 passed (auditrules, vulnmint, greedystore, luckydice, unguardedvault), 2 in review queue (realmcheck, adminbackdoor, the two with local imports). Observed enable lag is 2 to 5 hours after passing. When all 7 report live, re-run the deploy script (idempotent resume), then verify all 7 paths resolve on gnoweb and the test report reads back (score 75, RC-02 at line 41). |
+| 4 | Onyx deploy verified | DONE 27 Nov 2026 18:06 WITA (10:06 UTC). All 7 packages live on Onyx after the GPAO approval gate (first submit 17:15 WITA, all stored inert, 5 passed checks, 2 in review queue; enabled by 10:05 UTC, about 50 minutes after passing). Resume run re-verified all 7 byte-identical (re-add refused with PkgExistError, as designed) and stored test report #1 (vulnmint, score 75, RC-02 at line 41, tx OSWTRLJrmBFTN0o4mAygIgF4+vssHaI7P7WvpU3q1T8=, height 1448446). Report #2 (adminbackdoor, score 37, tx GrhQXkQ4N+8OvWqfj5zSArTy/ns+hdQSulpBdV1hVuk=, height 1448498) stored and verified the same day. Live paths: https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck and the five demo realms under the same namespace. Full record in docs/ONYX-DEPLOY.md sections 8 and 10. |
 | 5 | Name has no "Gno" prefix | DONE. The project is named RealmCheck. |
 | 6 | No mockups | DONE. Everything submitted is working code: rules, report realm, demo realms, UI, agent mode. No slides, no concept art, no mockup screens. |
 | 7 | GitHub Pages live | DONE 27 Nov 2026 16:35 WITA. Workflow file committed via the GitHub web UI (afa31bc), Pages source set to GitHub Actions, first workflow run succeeded, https://dunoil.github.io/realmcheck/ verified HTTP 200 and rendering the full UI. |
-| 8 | Post-deploy UI copy applied | TBD. Drafted in section 5 below. Apply only after the Onyx deploy is verified (item 4). |
+| 8 | Post-deploy UI copy applied | DONE 27 Nov 2026. `VITE_REALMCHECK_REALM` set in `.github/workflows/pages.yml` and the `ui/src/lib/gnoRpc.js` default updated to the deployed realm; `ui/src/App.tsx` copy updated (live-on-Onyx badge and intro, demo cards audit live from the chain with the bundled sources as a labeled fallback only, save-on-chain enabled for demo reports, "After the M6 deploy" card deleted, `dunoil` paths replaced with the deployer namespace); `npm run build` passes, no stale wording remains in `ui/src/` (grep-verified), `bash scripts/e2e-local.sh` PASSED with the new default. |
 | 9 | Live form re-checked | TBD. Re-check the live DoraHacks page before submitting (section 4). |
 | 10 | Demo video URL in the form | TBD. Depends on item 3. |
 | 11 | Duan final approval | TBD. M8, 17 Dec. Submit 18 Dec only after his explicit approval for that specific submission. |
@@ -90,16 +90,18 @@ Status as of 27 Nov 2026.
 
 ## 3. What is still TBD
 
-- **Demo video URL.** No video exists yet. It is the only submission
-  requirement with no artifact at all. Owner step near submission:
-  Duan's own voice is not required by the hackathon rules as verified,
-  but the video must show the product working.
-- **Onyx deploy verification.** All 7 addpkg transactions committed
-  27 Nov 2026 17:15 WITA, but the packages are stored INERT pending
-  GPAO approval (see docs/ONYX-DEPLOY.md section 10). The 7 gnoweb
-  links in the README are planned paths until `vm/qpkgmeta_json`
-  reports all 7 live and the deploy script resume has verified them
-  byte-identical with the test report reading back.
+- **Demo video URL.** A local-chain cut exists
+  (docs/demo-video/realmcheck-demo.mp4, 107s, recorded 27 Nov 2026)
+  but is not uploaded anywhere. The Onyx re-record is still due
+  (docs/DEMO-VIDEO.md), then the upload needs Duan's explicit
+  approval. Owner step near submission: Duan's own voice is not
+  required by the hackathon rules as verified, but the video must
+  show the product working.
+- **Onyx deploy verification.** DONE 27 Nov 2026 18:06 WITA
+  (10:06 UTC): all 7 packages live on Onyx, byte-verified against
+  the repo, test report #1 (vulnmint, score 75) and report #2
+  (adminbackdoor, score 37) stored and read back. Full record in
+  docs/ONYX-DEPLOY.md sections 8 and 10 and checklist item 4.
 - **GitHub Pages live check.** DONE 27 Nov 2026 16:35 WITA:
   https://dunoil.github.io/realmcheck/ returns HTTP 200 and renders
   the app. A redeploy is still due after the post-deploy UI copy is
@@ -140,12 +142,12 @@ the page itself says program dates and award counts may be adjusted:
 6. **KYC timing.** Confirm KYC is still winners only, at payout, with
    the 22 Dec deadline.
 
-## 5. Post-deploy UI copy change (DRAFT, do NOT apply yet)
+## 5. Post-deploy UI copy change (APPLIED 27 Nov 2026)
 
-Apply only after the Onyx deploy is verified (checklist item 4).
-Until then the current copy is correct: the demo realms really do not
-exist on Onyx yet, and the UI really does audit them from bundled
-local sources. Changing the copy early would lie to users.
+Applied after the Onyx deploy was verified (checklist item 4). The
+change table below is the record of what was applied; the copy in
+`ui/src/` is now the live copy. The draft text in this section
+describes the state before the change, kept for review.
 
 ### 5.1 `VITE_REALMCHECK_REALM` wiring
 
@@ -192,44 +194,59 @@ editing, they move as the file changes.
 | "After the M6 deploy" card, around lines 1171 to 1178 | "These five realms will live on Onyx at the paths above. The same cards will then audit them live from the chain, and the local demo labels will come off." | Delete the card. The deploy it describes has happened. |
 | Rules section, around lines 1188 and 1240 | "the same rules run on chain as the gno.land/p/dunoil/auditrules package" (appears twice) | "the same rules run on chain as the gno.land/p/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/auditrules package" (both places) |
 
-### 5.3 Behavior change behind the copy (not just text)
+### 5.3 Behavior change behind the copy (APPLIED 27 Nov 2026)
 
-The demo cards currently audit bundled local sources
-(`runDemoAudit`, `public/demo-sources/`). After the deploy, change
-them to audit live from the chain: call the same `runAudit` path the
-search box uses, with the demo realm path
+The demo cards audited bundled local sources
+(`runDemoAudit`, `public/demo-sources/`). After the deploy, they
+audit live from the chain: the same `runAudit` path the search box
+uses, with the demo realm path
 (`gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/<name>`).
-Keep the bundled sources as a fallback only if the live fetch fails,
-and label that fallback clearly ("live fetch failed, showing the
-bundled copy") instead of silently serving it. Do not keep the
-bundled audit as the default while the copy claims the realms are
-live: the copy and the behavior must agree.
+The bundled sources remain as a fallback only if the live fetch
+fails, labeled clearly ("live fetch failed, showing the bundled
+copy") instead of silently served. The bundled fallback sources are
+now byte-identical to the deployed sources
+(`ui/scripts/demo-sources.mjs` prefers the deploy stage when it
+exists), and the manifest realm paths point at the deployed
+namespace, so a `?demo=` link resolves to the live realm. The copy
+and the behavior agree.
 
-After applying, verify before redeploying Pages:
+Verification, 27 Nov 2026:
 
-1. `cd ui && npm run build` passes.
-2. Open `?demo=adminbackdoor` on the built site and confirm score 37
-   with 4 findings, fetched live (not bundled).
-3. Open `?realm=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint`
-   and confirm score 75 with RC-02 at line 41.
-4. Save one report on chain from the UI (gnokey command or Adena)
-   and confirm it reads back with the deployed auditor address.
-5. Confirm no "does not exist on Onyx yet", "audited locally", or
-   "Local demo" wording remains anywhere in `ui/src/`.
+1. `cd ui && npm run build` passes (dist JS 281.33 kB).
+2. `?demo=adminbackdoor` path verified through the UI's own code
+   path (`scripts/verify-live-audit.mjs` runs the UI's
+   `fetchRealmFiles` plus `audit.js` against Onyx): score 37, 4
+   findings, live source byte-identical to the staged copy. A
+   manual browser click-through of the built site is still due
+   (parent-agent browser task).
+3. `?realm=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint`
+   verified the same way: score 75, RC-02 at line 41, live source
+   byte-identical to the staged copy. Manual browser click-through
+   still due.
+4. Reports #1 (vulnmint, score 75) and #2 (adminbackdoor, score
+   37) saved on chain through the UI's own report encoding
+   (`scripts/offline-sign-deploy.sh` resume and
+   `scripts/submit-report-onyx.sh`) and read back with the deployed
+   auditor address
+   `g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`. The Adena live test
+   is still pending (not a blocker: the `gnokey` command path
+   works).
+5. No "does not exist on Onyx yet", "audited locally", or "Local
+   demo" wording remains anywhere in `ui/src/` or `ui/public/`
+   (grep-verified 27 Nov 2026; the manifest note and realm paths
+   were fixed, and the bundled demo sources are byte-identical to
+   the live sources).
 
-### 5.4 Docs to update at the same time
+### 5.4 Docs updated at the same time (DONE 27 Nov 2026)
 
-- `README.md` status line: the Onyx deploy is done, with the real
-  gas used, tx hashes, and the verified paths. Remove "pending faucet
-  funding".
-- `README.md` live demo section: the Pages URL is live (only after
-  the HTTP 200 check).
-- `ui/README.md`: the "Demo realm paths" and "What is still a stub"
-  sections, which say the demos deploy with the full release, and
-  the example scores if they moved.
-- `docs/ONYX-DEPLOY.md` section 8: record the real Onyx gas used,
-  storage fees, tx hashes, and deployed paths.
-- `M6-PREP-STATUS.md` (or the M6 close-out note): the real deploy
-  record.
-- This file: move checklist items 4, 7, and 8 to DONE with the
-  verification evidence (URLs fetched, scores confirmed).
+- `README.md` status line: the Onyx deploy is live, with the real
+  gas used, tx hashes, and the verified paths. "Pending faucet
+  funding" removed.
+- `README.md` live demo section: the Pages URL is live.
+- `ui/README.md`: the "Demo realm paths" section now says the demos
+  resolve on Onyx since the 27 Nov 2026 deploy.
+- `docs/ONYX-DEPLOY.md` section 8: the real Onyx gas used, storage
+  fees, tx hashes, and deployed paths recorded.
+- This file: checklist items 4 and 8 moved to DONE with the
+  verification evidence (URLs fetched, scores confirmed). Item 7
+  was already DONE (Pages live 16:35 WITA).

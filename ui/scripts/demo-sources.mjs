@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // demo-sources.mjs: build step that bundles the five deliberately
-// vulnerable demo realms into the UI so they can be audited locally
-// with no network and before their M6 Onyx deploy.
+// vulnerable demo realms into the UI as a fallback for when the live
+// Onyx fetch fails. The realms are live on Onyx under the deployer
+// namespace (verified 27 Nov 2026); the bundled copies are used only
+// on a live-fetch failure, and the report then says so.
 //
 // What it does:
 //   - copies every non-test .gno source from contracts/demo/<realm>/ into
@@ -26,6 +28,14 @@ import { score } from "../src/lib/audit.js";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
 const demoDir = join(root, "contracts", "demo");
+// The deploy stages byte-exact copies of what went on chain in
+// scripts/offline-work/stage/ (namespace swap included). When the
+// stage exists, bundle those bytes so the fallback is byte-identical
+// to the deployed source; otherwise fall back to the repo copies
+// (a fresh clone has no stage directory, and the audit result is the
+// same either way: the swap changes only import paths and addresses,
+// never a finding or a line number).
+const stageDir = join(root, "scripts", "offline-work", "stage");
 const expectedPath = join(here, "expected-findings.json");
 const outDir = join(here, "..", "public", "demo-sources");
 
@@ -34,31 +44,31 @@ const outDir = join(here, "..", "public", "demo-sources");
 const DEMOS = [
   {
     name: "vulnmint",
-    realmPath: "gno.land/r/dunoil/vulnmint",
+    realmPath: "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint",
     vulnerability:
       "A GRC20-like token whose Mint has no access control: anyone can mint any amount to any address.",
   },
   {
     name: "unguardedvault",
-    realmPath: "gno.land/r/dunoil/unguardedvault",
+    realmPath: "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/unguardedvault",
     vulnerability:
       "A vault that credits deposits without verifying any payment, and lets anyone call Withdraw to take anyone's funds.",
   },
   {
     name: "greedystore",
-    realmPath: "gno.land/r/dunoil/greedystore",
+    realmPath: "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/greedystore",
     vulnerability:
       "A registry that appends every entry to a persistent list with no cap, so storage grows without bound.",
   },
   {
     name: "luckydice",
-    realmPath: "gno.land/r/dunoil/luckydice",
+    realmPath: "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/luckydice",
     vulnerability:
       "A dice game whose winning number comes from block height and block time, readable in advance by anyone.",
   },
   {
     name: "adminbackdoor",
-    realmPath: "gno.land/r/dunoil/adminbackdoor",
+    realmPath: "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/adminbackdoor",
     vulnerability:
       "A treasury where a single hard-coded admin can drain all funds at once, and bonus payouts ignore the result of an external realm call.",
   },
@@ -80,8 +90,19 @@ for (const demo of DEMOS) {
   }
   const realmOut = join(outDir, demo.name);
   mkdirSync(realmOut, { recursive: true });
+  // Prefer the staged (deployed) bytes when they exist.
+  let staged = 0;
   for (const file of files) {
-    copyFileSync(join(srcDir, file), join(realmOut, file));
+    const stagedFile = join(stageDir, demo.name, file);
+    try {
+      copyFileSync(stagedFile, join(realmOut, file));
+      staged++;
+    } catch {
+      copyFileSync(join(srcDir, file), join(realmOut, file));
+    }
+  }
+  if (staged === files.length) {
+    console.log(`demo-sources: ${demo.name}: bundled from the deployed stage (byte-identical to Onyx)`);
   }
   // Expected findings for this realm, from expected-findings.json,
   // keyed by file name. The expected score is computed from them with
@@ -105,7 +126,7 @@ for (const demo of DEMOS) {
 
 const manifest = {
   generatedAt: new Date().toISOString(),
-  note: "Local demo sources, bundled with the UI. These realms do not exist on Onyx yet; they deploy with the M6 release.",
+  note: "Fallback demo sources, bundled with the UI. These realms are live on Onyx at the paths above; the bundled copies are used only when the live fetch fails, and the report then says so.",
   realms,
 };
 writeFileSync(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n", "utf-8");

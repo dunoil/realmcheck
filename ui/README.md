@@ -41,10 +41,15 @@ Realms confirmed to exist on Onyx (27 Nov 2026):
 `gno.land/r/sys/params`, `gno.land/r/gov/dao`. Confirmed absent:
 `gno.land/r/demo/boards`, `gno.land/r/demo/microblog`,
 `gno.land/r/demo/foo20`, `gno.land/r/gnoland/home`,
-`gno.land/r/sys/validators/v3`. The five demo realms
-(`gno.land/r/dunoil/vulnmint`, `unguardedvault`, `greedystore`,
-`luckydice`, `adminbackdoor`) deploy to Onyx with the full release;
-until then they are audited locally by the port test below.
+`gno.land/r/sys/validators/v3`. The five demo realms are live on Onyx
+under the deployer namespace
+(`gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint`,
+`unguardedvault`, `greedystore`, `luckydice`, `adminbackdoor`),
+verified 27 Nov 2026: all five audit live from the chain with
+ground-truth scores, and the live sources are byte-identical to the
+staged (deployed) copies. The bundled `demo-sources/` copies remain
+only as a fallback when the live fetch fails, and the report then
+says so.
 
 Live smoke test (`node ui/scripts/smoke-onyx.mjs`, 27 Nov 2026),
 which runs the same `fetchRealmFiles` + `audit.js` path as the UI:
@@ -149,8 +154,9 @@ Documented in `rules.gno` and the audit-rules README.
 - **Demo realm paths.** The example chips use `gno.land/r/gov/dao`
   (100/100) and `gno.land/r/sys/params` (85/100), which exist on Onyx
   today. The demo realm paths in the UI text
-  (`gno.land/r/dunoil/vulnmint`, ...) resolve once phase 6 deploys
-  them to Onyx.
+  (`gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint`,
+  ...) resolve on Onyx since the 27 Nov 2026 deploy, and the demo
+  cards audit them live from the chain.
 
 ## Files
 

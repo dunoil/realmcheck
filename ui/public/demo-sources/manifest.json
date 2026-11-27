@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-27T06:56:31.759Z",
-  "note": "Local demo sources, bundled with the UI. These realms do not exist on Onyx yet; they deploy with the M6 release.",
+  "generatedAt": "2026-11-27T10:13:59.636Z",
+  "note": "Fallback demo sources, bundled with the UI. These realms are live on Onyx at the paths above; the bundled copies are used only when the live fetch fails, and the report then says so.",
   "realms": [
     {
       "name": "vulnmint",
-      "realmPath": "gno.land/r/dunoil/vulnmint",
+      "realmPath": "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint",
       "vulnerability": "A GRC20-like token whose Mint has no access control: anyone can mint any amount to any address.",
       "files": [
         "vulnmint.gno"
@@ -22,7 +22,7 @@
     },
     {
       "name": "unguardedvault",
-      "realmPath": "gno.land/r/dunoil/unguardedvault",
+      "realmPath": "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/unguardedvault",
       "vulnerability": "A vault that credits deposits without verifying any payment, and lets anyone call Withdraw to take anyone's funds.",
       "files": [
         "unguardedvault.gno"
@@ -47,7 +47,7 @@
     },
     {
       "name": "greedystore",
-      "realmPath": "gno.land/r/dunoil/greedystore",
+      "realmPath": "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/greedystore",
       "vulnerability": "A registry that appends every entry to a persistent list with no cap, so storage grows without bound.",
       "files": [
         "greedystore.gno"
@@ -65,7 +65,7 @@
     },
     {
       "name": "luckydice",
-      "realmPath": "gno.land/r/dunoil/luckydice",
+      "realmPath": "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/luckydice",
       "vulnerability": "A dice game whose winning number comes from block height and block time, readable in advance by anyone.",
       "files": [
         "luckydice.gno"
@@ -97,7 +97,7 @@
     },
     {
       "name": "adminbackdoor",
-      "realmPath": "gno.land/r/dunoil/adminbackdoor",
+      "realmPath": "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/adminbackdoor",
       "vulnerability": "A treasury where a single hard-coded admin can drain all funds at once, and bonus payouts ignore the result of an external realm call.",
       "files": [
         "adminbackdoor.gno"

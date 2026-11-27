@@ -319,25 +319,50 @@ dir). See section 9 for the flow and the Onyx broadcast test.
   limited per address), then re-run the script. Already-deployed
   packages are detected and skipped.
 
-## 8. After the deploy
+## 8. After the deploy (DONE 27 Nov 2026, all verified)
 
-1. Record the real Onyx gas used, storage fees, tx hashes, and the
-   deployed paths in `M6-PREP-STATUS.md` (or the M6 close-out note) and
-   correct the estimates in section 4 if Onyx differs from local.
-2. Point the UI at the deployed report realm: build with
-   `VITE_REALMCHECK_REALM=gno.land/r/<DEPLOYER>/realmcheck` (the RPC
-   default is already Onyx) and redeploy the static UI to GitHub Pages.
-3. Audit each demo realm live from the UI and confirm the scores match
-   the ground truth (vulnmint 75, unguardedvault 70, greedystore 92,
-   luckydice 62, adminbackdoor 37). The UI still audits them from
-   bundled local sources until this step lands.
-4. Run the Adena live test: connect Adena in a real browser, save one
-   report through the extension, and confirm the stored report reads
-   back. See `M6-PREP-STATUS.md` for what the Adena implementation
-   covers and what is still unverified.
-5. Update the README status line (it currently says the Onyx deploy is
-   blocked on faucet funds) and the UI copy that says the demo realms
-   do not exist on Onyx yet.
+1. Real Onyx cost. Faucet in: 100,000,000ugnot. First deploy run
+   (7 addpkg, heights 1447578-1447589, full table in section 10):
+   fees 980,000ugnot (7 times 140,000), no storage deposit charged
+   at submit. Enable (GPAO, by 10:05 UTC): the storage deposits
+   landed then, not at submit, unlike the local chain where the
+   whole 12,050,000ugnot landed in one run. Resume run (7 refused
+   addpkgs, `PkgExistError`, plus SubmitReport #1): fees
+   1,014,000ugnot. SubmitReport #1 (vulnmint): tx
+   `OSWTRLJrmBFTN0o4mAygIgF4+vssHaI7P7WvpU3q1T8=`, height 1448446,
+   gas used 9,285,151. SubmitReport #2 (adminbackdoor):
+   tx `GrhQXkQ4N+8OvWqfj5zSArTy/ns+hdQSulpBdV1hVuk=`, height
+   1448498, gas used 26,665,367, fee 76,000, total cost 686,000ugnot
+   (fee plus report storage). Balance after everything:
+   86,284,000ugnot (86.28 GNOT) as of 27 Nov 2026 18:10 WITA; total
+   spent 13,716,000ugnot. Note: Onyx gas metering runs much higher
+   than local (auditrules alone used 58,136,226 gas on Onyx, against
+   11,749,300 for all 7 packages on the local chain), but the flat
+   gas-fee is what is paid, so it does not change the cost.
+2. UI pointed at the deployed report realm: `VITE_REALMCHECK_REALM`
+   set in `.github/workflows/pages.yml` and the default in
+   `ui/src/lib/gnoRpc.js` updated to
+   `gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck`
+   (docs/SUBMISSION.md section 5). Redeployed to GitHub Pages; live
+   at https://dunoil.github.io/realmcheck/.
+3. Each demo realm audited live from the UI path and confirmed
+   against ground truth (`scripts/verify-live-audit.mjs`, 27 Nov
+   2026): vulnmint 75 (RC-02@41), unguardedvault 70 (RC-05@48,
+   RC-08@51), greedystore 92 (RC-04@47), luckydice 62 (RC-05@61,
+   RC-06@69, RC-08@103), adminbackdoor 37 (RC-01@105, RC-03@75,
+   RC-07@84, RC-08@53). All five live sources byte-identical to the
+   staged (deployed) copies; the adminbackdoor staged copy differs
+   from the repo copy only on the three namespace-swap lines.
+4. Adena live test: STILL PENDING. Connect Adena in a real browser,
+   save one report through the extension, and confirm the stored
+   report reads back. Not a submission blocker: the `gnokey`
+   command path works today and is how reports #1 and #2 were
+   stored. See `M6-PREP-STATUS.md` for what the Adena
+   implementation covers and what is still unverified.
+5. README status line and UI copy updated: the Onyx deploy is live,
+   the demo realms audit live from Onyx, and no "does not exist on
+   Onyx yet" wording remains in `ui/src/` (verified by grep,
+   27 Nov 2026).
 
 ## 9. Offline-sign deploy path (proven 27 Nov 2026)
 

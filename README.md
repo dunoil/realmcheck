@@ -11,19 +11,16 @@ anyone can re-run the audit and compare.
 
 ## Status (27 Nov 2026)
 
-M1 to M5 are done and verified: rules, report realm, demo realms, UI, and
-agent mode all pass their checks on a local chain. M6 (Onyx deploy) is
-prepared but NOT yet run: the deploy script is proven end to end on a
-local chain with the real Onyx key, and the signed bytes were proven to
-reach the Onyx node, which decoded them and rejected them only with
-`UnknownAddressError` because the deployer key is unfunded. The Onyx
-deploy is pending faucet funding: the deployer key needs GNOT from
-https://faucet.gno.land (a captcha step in a browser). Until the deploy
-lands, the seven Onyx paths below are the planned paths, not live links,
-and the UI audits the demo realms from bundled local sources. The GitHub
-Pages site is also not live yet: the workflow in this repo is ready, but
-Pages still needs to be enabled in the repo settings (see
-[Live demo](#live-demo)).
+M1 to M7 are done: rules, report realm, demo realms, UI, agent mode,
+demo video (local-chain cut), and the submission package. The Onyx
+deploy is LIVE, verified 27 Nov 2026 18:06 WITA (10:06 UTC): all 7
+packages enabled on Onyx after the GPAO approval gate (see
+docs/ONYX-DEPLOY.md section 10), each byte-verified against the repo,
+and two reports stored on chain (report #1 vulnmint score 75, report
+#2 adminbackdoor score 37). The UI audits the demo realms live from
+Onyx, and the GitHub Pages site is live at the URL below. Remaining
+before submission: the Onyx demo video re-record, the YouTube upload
+(needs Duan's approval), and Duan's final approval to submit.
 
 - Repo: https://github.com/dunoil/realmcheck (public, MIT)
 - Hackathon: Gnome Tavern Hackathon, DoraHacks,
@@ -174,20 +171,18 @@ The UI is a static site served from GitHub Pages at:
 
 - https://dunoil.github.io/realmcheck/
 
-Status: the Pages workflow (`.github/workflows/pages.yml`) is in this
-repo and the build passes, but Pages is not enabled yet, so this URL
-is not live as of 27 Nov 2026. The owner step is in
-`docs/SUBMISSION.md`: enable Pages in the repo settings (Settings,
-Pages, Build and deployment, Source: GitHub Actions), then the next
-push to `main` deploys it. The build uses relative asset paths
-(`base: './'` in `ui/vite.config.ts`), so it serves correctly under
-the `/realmcheck/` subpath.
+Status: LIVE since 27 Nov 2026 16:35 WITA. The workflow
+(`.github/workflows/pages.yml`) builds `ui/` and deploys it to Pages
+on every push to `main` that touches `ui/` (and on manual dispatch).
+The build uses relative asset paths (`base: './'` in
+`ui/vite.config.ts`), so it serves correctly under the `/realmcheck/`
+subpath. The build bakes in
+`VITE_REALMCHECK_REALM=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck`,
+the deployed report realm.
 
 Try it with a realm that exists on Onyx today: `gno.land/r/gov/dao`
 (100/100) or `gno.land/r/sys/params` (85/100). The five demo realms
-are one-click cards that audit bundled local sources in your browser
-until the Onyx deploy lands; after the deploy the same cards will
-audit them live from the chain.
+are one-click cards that audit the live source from Onyx.
 
 ## How to use the UI
 
@@ -196,9 +191,10 @@ audit them live from the chain.
   (default Onyx) and shows the score, the findings with cited lines,
   and the explain view on every finding card.
 - **Demo showcase:** the five demo realms are one-click cards with
-  their expected scores and findings. They run entirely in your
-  browser against bundled sources, clearly labeled as local demos,
-  and saving on chain is disabled for them.
+  their expected scores and findings. They fetch the live source from
+  Onyx; if the live fetch fails, the card falls back to the bundled
+  source and the report says so. Saving on chain works for demo
+  reports too.
 - **Explain this function:** every finding card expands to show the
   enclosing function with the finding line highlighted, plus the
   plain-English risk, the attacker view, what to check, and the fix
@@ -223,14 +219,14 @@ Onyx:
 
 - `VITE_GNO_RPC` (default `https://rpc.onyx.testnets.gno.land`)
 - `VITE_GNOWEB` (default `https://onyx.testnets.gno.land`)
-- `VITE_REALMCHECK_REALM` (default `gno.land/r/dunoil/realmcheck`,
-  the local placeholder namespace; see below)
+- `VITE_REALMCHECK_REALM` (default
+  `gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck`,
+  the deployed report realm on Onyx)
 
-After the Onyx deploy, build with the deployed path:
-`VITE_REALMCHECK_REALM=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck`
-and redeploy the static UI. Do not change the default in
-`ui/src/lib/gnoRpc.js` until the deploy is verified; the
-`dunoil` default is what the local end-to-end harness expects.
+The Pages workflow sets the same value at build time. The local
+end-to-end harness overrides it with its own value
+(`gno.land/r/dunoil/realmcheck` on the local chain), so the default
+does not break local testing.
 
 ## Agent mode
 

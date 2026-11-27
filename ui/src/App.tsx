@@ -309,6 +309,9 @@ export default function App() {
   const [demoManifest, setDemoManifest] = useState<DemoManifest | null>(null);
   const [demoError, setDemoError] = useState("");
   const [demoRunning, setDemoRunning] = useState<string | null>(null);
+  // True when a demo report was audited from the bundled sources
+  // because the live fetch from Onyx failed. The report then says so.
+  const [demoLiveFallback, setDemoLiveFallback] = useState(false);
   const [showSave, setShowSave] = useState(false);
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -397,6 +400,7 @@ export default function App() {
     setCopied(false);
     setLinkCopied(false);
     setDemoName(null);
+    setDemoLiveFallback(false);
     setPhase("fetching");
     setStatus(`Fetching source for ${clean} from the configured network...`);
     try {
@@ -439,27 +443,39 @@ export default function App() {
     setCopied(false);
     setLinkCopied(false);
     setDemoRunning(demo.name);
+    setDemoLiveFallback(false);
     setPhase("fetching");
-    setStatus(`Auditing the bundled local sources for ${demo.name}...`);
+    setStatus(`Fetching the live source for ${demo.name} from Onyx...`);
     try {
-      const base = import.meta.env.BASE_URL;
-      const fetched: { name: string; source: string }[] = [];
-      for (const file of demo.files) {
-        const res = await fetch(
-          `${base}demo-sources/${demo.name}/${encodeURIComponent(file)}`,
-        );
-        if (!res.ok) {
-          throw new Error(
-            `Could not load the bundled demo source ${file} (HTTP ${res.status}).`,
+      // Live first: fetch the deployed source from the chain, the same
+      // path the search box uses. The bundled sources are only a
+      // fallback when the live fetch fails, and the report then says so
+      // instead of silently serving the bundled copy.
+      let fetched: { name: string; source: string }[];
+      try {
+        fetched = await fetchRealmFiles(demo.realmPath);
+      } catch (liveErr) {
+        const base = import.meta.env.BASE_URL;
+        const bundled: { name: string; source: string }[] = [];
+        for (const file of demo.files) {
+          const res = await fetch(
+            `${base}demo-sources/${demo.name}/${encodeURIComponent(file)}`,
           );
+          if (!res.ok) {
+            throw new Error(
+              `Live fetch failed (${liveErr instanceof Error ? liveErr.message : String(liveErr)}), and the bundled demo source ${file} could not be loaded either (HTTP ${res.status}).`,
+            );
+          }
+          bundled.push({ name: file, source: await res.text() });
         }
-        fetched.push({ name: file, source: await res.text() });
+        fetched = bundled;
+        setDemoLiveFallback(true);
       }
       setFiles(fetched);
       setRealmPath(demo.realmPath);
       setPhase("auditing");
       setStatus(
-        `Auditing ${fetched.length} bundled source file${fetched.length === 1 ? "" : "s"} with rules RC-01 to RC-08...`,
+        `Auditing ${fetched.length} source file${fetched.length === 1 ? "" : "s"} with rules RC-01 to RC-08...`,
       );
       const found = auditFiles(fetched);
       const combined = fetched
@@ -486,7 +502,8 @@ export default function App() {
   }
 
   // Deep links: ?realm=gno.land/r/... auto-runs a live audit on load,
-  // ?demo=<name> auto-runs a bundled local demo audit. The demo
+  // ?demo=<name> auto-runs a live audit of the demo realm (bundled
+  // sources are the fallback when the live fetch fails). The demo
   // manifest is fetched first so a ?demo= link can resolve its files.
   useEffect(() => {
     let cancelled = false;
@@ -501,13 +518,13 @@ export default function App() {
           if (!cancelled) setDemoManifest(manifest);
         } else if (!cancelled) {
           setDemoError(
-            `Demo manifest unavailable (HTTP ${res.status}). Local demo audits are disabled until the next build.`,
+            `Demo list unavailable (HTTP ${res.status}). The demo cards need the next build.`,
           );
         }
       } catch {
         if (!cancelled) {
           setDemoError(
-            "Demo manifest could not be loaded. Local demo audits are disabled until the next build.",
+            "Demo list could not be loaded. The demo cards need the next build.",
           );
         }
       }
@@ -613,7 +630,7 @@ export default function App() {
   }
 
   const submitCommand =
-    phase === "done" && !demoName
+    phase === "done"
       ? buildSubmitCommand({
           realmPath: realmPath.trim(),
           sourceHash,
@@ -728,7 +745,7 @@ export default function App() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") void runAudit(realmPath);
               }}
-              placeholder="gno.land/r/dunoil/vulnmint"
+              placeholder="gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint"
               spellCheck={false}
               className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 font-mono text-sm text-zinc-100 outline-none focus:border-emerald-500"
             />
@@ -776,8 +793,7 @@ export default function App() {
             </button>
             . Scores change as the rules improve, so run the audit to see
             the current result. The five deliberately vulnerable demo realms
-            below are audited locally for now and deploy to Onyx with the
-            full release.
+            below are live on Onyx at the paths shown.
           </p>
           {(phase === "fetching" || phase === "auditing") && (
             <p className="mt-3 text-sm text-zinc-300" role="status">
@@ -796,11 +812,11 @@ export default function App() {
 
         {phase === "done" && (
           <section id="report" className="mt-6 scroll-mt-4">
-            {demoName && (
+            {demoName && demoLiveFallback && (
               <p className="mb-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
-                Local demo report: the sources below were bundled with this
-                page and audited in your browser, not fetched from Onyx. The{" "}
-                {demoName} realm does not exist on Onyx yet.
+                Live fetch failed for the {demoName} realm, so this report
+                shows the bundled copy: the scores below come from the
+                source bundled with this page, not from the chain.
               </p>
             )}
             <div className="flex flex-col gap-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 sm:flex-row sm:items-center">
@@ -822,16 +838,14 @@ export default function App() {
                   </span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {!demoName && (
-                    <a
-                      className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800"
-                      href={gnowebUrl(realmPath.trim())}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View realm on gnoweb
-                    </a>
-                  )}
+                  <a
+                    className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800"
+                    href={gnowebUrl(realmPath.trim())}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View realm on gnoweb
+                  </a>
                   <button
                     type="button"
                     onClick={() =>
@@ -841,22 +855,20 @@ export default function App() {
                   >
                     {linkCopied ? "Link copied" : "Copy link to this report"}
                   </button>
-                  {!demoName && (
-                    <button
-                      type="button"
-                      onClick={() => setShowSave((v) => !v)}
-                      className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-emerald-400"
-                    >
-                      {showSave
-                        ? "Hide save options"
-                        : "Save this report on chain"}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowSave((v) => !v)}
+                    className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-emerald-400"
+                  >
+                    {showSave
+                      ? "Hide save options"
+                      : "Save this report on chain"}
+                  </button>
                 </div>
               </div>
             </div>
 
-            {showSave && !demoName && (
+            {showSave && (
               <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
                 <h3 className="text-sm font-semibold text-zinc-100">
                   Save this report on chain
@@ -1017,15 +1029,6 @@ export default function App() {
               </div>
             )}
 
-            {demoName && (
-              <p className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 text-sm leading-relaxed text-zinc-400">
-                Saving on chain is disabled for local demos: the {demoName}{" "}
-                realm does not exist on Onyx yet, so there is no deployed
-                source for a stored report to point at. It deploys with the
-                M6 release.
-              </p>
-            )}
-
             <div className="mt-6">
               <h2 className="mb-3 text-lg font-bold">Findings</h2>
               <FindingsList findings={findings} files={files} />
@@ -1084,17 +1087,15 @@ export default function App() {
         <section className="mt-10">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-lg font-bold">Try the demo realms</h2>
-            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 ring-1 ring-amber-500/40">
-              Local demo
+            <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/40">
+              Live on Onyx
             </span>
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
             Five deliberately vulnerable realms, built to prove the rules
-            work. Their sources are bundled with this page, so each audit
-            runs entirely in your browser with no network. These realms do
-            not exist on Onyx yet; they deploy with the M6 release. Expected
-            findings and scores come from the rule set at build time and
-            move with it.
+            work. Each audit fetches the live source from Onyx and runs the
+            rules in your browser. Expected findings and scores come from
+            the rule set at build time and move with it.
           </p>
           {demoError && (
             <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300" role="alert">
@@ -1160,20 +1161,10 @@ export default function App() {
                   >
                     {demoRunning === demo.name
                       ? "Auditing..."
-                      : `Audit ${demo.name} locally`}
+                      : `Audit ${demo.name}`}
                   </button>
                 </article>
               ))}
-              <article className="flex flex-col justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 p-4">
-                <h3 className="text-sm font-bold text-zinc-200">
-                  After the M6 deploy
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                  These five realms will live on Onyx at the paths above.
-                  The same cards will then audit them live from the chain,
-                  and the local demo labels will come off.
-                </p>
-              </article>
             </div>
           )}
         </section>
@@ -1185,7 +1176,7 @@ export default function App() {
             same findings and the same score. The same rules run on chain as
             the{" "}
             <span className="font-mono text-zinc-100">
-              gno.land/p/dunoil/auditrules
+              gno.land/p/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/auditrules
             </span>{" "}
             package, so any project can import them.
           </p>
@@ -1237,7 +1228,7 @@ export default function App() {
               cross-realm calls, and unguarded state mutation. The same rules
               run on chain as the{" "}
               <span className="font-mono text-zinc-100">
-                gno.land/p/dunoil/auditrules
+                gno.land/p/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/auditrules
               </span>{" "}
               package, so any project can import them.
             </li>

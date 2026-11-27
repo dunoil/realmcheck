@@ -23,12 +23,12 @@ import (
 
 	"chain"
 
-	vulnmint "gno.land/r/dunoil/vulnmint"
+	vulnmint "gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/vulnmint"
 )
 
 // Admin is the single hard-coded admin address. Whoever controls this
 // address controls the whole treasury.
-var Admin = address("g1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq")
+var Admin = address("g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu")
 
 // treasury is the ugnot balance held by this realm, as an internal ledger.
 var treasury int64
@@ -87,7 +87,7 @@ func FundBonusPool(cur realm, amount int64) {
 // BonusPool returns this realm's vulnmint balance, the pool PayBonus pays
 // from.
 func BonusPool() int64 {
-	return vulnmint.BalanceOf(chain.PackageAddress("gno.land/r/dunoil/adminbackdoor"))
+	return vulnmint.BalanceOf(chain.PackageAddress("gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/adminbackdoor"))
 }
 
 // PayBonus pays amount vulnmint tokens to to and records the payment.
