@@ -34,3 +34,6 @@ dist/
 
 # OS and editor files
 .DS_Store
+
+# Deployer key material (gnokey home): mnemonic, password, encrypted keybase. Never commit.
+.gnokey/
