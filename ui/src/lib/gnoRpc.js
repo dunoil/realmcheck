@@ -127,6 +127,16 @@ export async function sha256Hex(str) {
     .join("");
 }
 
+// The source hash identifies the exact bytes audited. It must match the
+// hash stored on-chain by SubmitReport: sha256 of the single audited
+// file, or of the raw sources concatenated for a multi-file realm. Do NOT
+// hash the display string (filename headers): the live view then shows a
+// different hash from the stored report for the same source (seen 27 Nov
+// 2026: live 3499e691... vs stored f8616d8b... for vulnmint).
+export async function sourceHashFor(files) {
+  return sha256Hex(files.map((f) => f.source).join(""));
+}
+
 // encodeFindings renders findings in the SubmitReport encoding:
 // one finding per line, RULEID|Severity|Line|Title|Description|SourceLine.
 export function encodeFindings(findings) {

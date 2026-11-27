@@ -13,6 +13,9 @@ export function fetchRealmFiles(
   realmPath: string,
 ): Promise<{ name: string; source: string }[]>;
 export function sha256Hex(str: string): Promise<string>;
+export function sourceHashFor(
+  files: { name: string; source: string }[],
+): Promise<string>;
 export function encodeFindings(findings: Finding[]): string;
 export function decodeFindings(encoded: string): Finding[];
 export function parsePrintedString(text: string): string;

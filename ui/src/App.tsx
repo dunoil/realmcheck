@@ -24,7 +24,7 @@ import {
   parsePrintedReport,
   parsePrintedString,
   qeval,
-  sha256Hex,
+  sourceHashFor,
   type StoredReport,
 } from "./lib/gnoRpc.js";
 import "./index.css";
@@ -411,10 +411,7 @@ export default function App() {
         `Auditing ${fetched.length} source file${fetched.length === 1 ? "" : "s"} with rules RC-01 to RC-08...`,
       );
       const found = auditFiles(fetched);
-      const combined = fetched
-        .map((f) => `===== ${f.name} =====\n${f.source}`)
-        .join("\n");
-      const hash = await sha256Hex(combined);
+      const hash = await sourceHashFor(fetched);
       setFindings(found);
       setSourceHash(hash);
       setPhase("done");
@@ -478,10 +475,7 @@ export default function App() {
         `Auditing ${fetched.length} source file${fetched.length === 1 ? "" : "s"} with rules RC-01 to RC-08...`,
       );
       const found = auditFiles(fetched);
-      const combined = fetched
-        .map((f) => `===== ${f.name} =====\n${f.source}`)
-        .join("\n");
-      const hash = await sha256Hex(combined);
+      const hash = await sourceHashFor(fetched);
       setFindings(found);
       setSourceHash(hash);
       setDemoName(demo.name);
