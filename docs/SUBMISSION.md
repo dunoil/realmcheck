@@ -22,7 +22,7 @@ Where a field is marked TBD, the value does not exist yet.
 | Public repo URL | https://github.com/dunoil/realmcheck |
 | Deployment link (live testnet deployment) | https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck (LIVE, verified 27 Nov 2026; all 7 packages enabled, reports #1 and #2 stored on chain; see checklist item 4.) |
 | Live demo URL (web UI) | https://dunoil.github.io/realmcheck/ (LIVE since 27 Nov 2026 16:35 WITA; verified HTTP 200 and renders the app. Redeployed 27 Nov 2026 18:15 WITA after the post-deploy UI copy push: workflow run 45980432341, success in 30s, serves the updated UI with the deployed realm.) |
-| Demo video URL | TBD. A local-chain cut exists (docs/demo-video/realmcheck-demo.mp4, 107s, recorded 27 Nov 2026); the Onyx re-record is still due, and the video is not uploaded anywhere yet. Do not submit without it: a demo video is required. |
+| Demo video URL | TBD (not uploaded anywhere yet). The Onyx cut is ready: docs/demo-video/realmcheck-demo.mp4, 103.0s, 1920x1080, recorded 27 Nov 2026 against the live Onyx deploy, QA passed; the local-chain cut is kept as realmcheck-demo-local.mp4 (107s). Upload to YouTube needs Duan's explicit approval. Do not submit without it: a demo video is required. |
 | Team | Solo. Builder: Duan, DoraHacks username dunoil. |
 | Tags (if the form asks) | Go, Blockchain, Smart Contracts, Layer 1, dApps, AI. These are the tags listed on the hackathon page. |
 
@@ -77,7 +77,7 @@ Status as of 27 Nov 2026.
 | --- | --- | --- |
 | 1 | Repo public | DONE. https://github.com/dunoil/realmcheck, public, MIT, main branch. |
 | 2 | README done | DONE. Full README in the repo root (M7): what it is, why it can only exist on Gno.land, architecture, all 8 rules with weights, demo ground truth, UI use, agent mode with the honest gnomcp note, deploy steps, judging map, links. |
-| 3 | Demo video done | RECORDED 27 Nov (local-chain cut): docs/demo-video/realmcheck-demo.mp4, 107s, 1920x1080, voiceover plus captions, QA passed (coordinator checked 5 frames). Shows a live audit of vulnmint (score 75, RC-02 at line 41), the explain view, and stored report #1. NOT YET the submission cut: re-record against Onyx after the deploy (see docs/DEMO-VIDEO.md), then upload to YouTube after Duan's approval. Keep it short; the hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
+| 3 | Demo video done | DONE 27 Nov 2026 (Onyx cut): docs/demo-video/realmcheck-demo.mp4, 103.0s, 1920x1080, 29.99 fps, 8,335,311 bytes, Piper narration 155 wpm, -16.73 LUFS, true peak -1.32 dBTP, QA passed (11 frames checked, whisper transcript verified, every spoken number matches the on-chain reports). Shows a live audit of vulnmint on Onyx (score 75, RC-02 at line 41), the explain view, adminbackdoor live (score 37, 4 findings, "Live on Onyx" badge), and stored reports #1 and #2 on the Onyx Render page. The local-chain cut is kept as docs/demo-video/realmcheck-demo-local.mp4 (107s). NOT uploaded anywhere: YouTube upload needs Duan's approval. The hackathon page states no video length limit in the research report, so confirm the limit on the live form (see section 4). |
 | 4 | Onyx deploy verified | DONE 27 Nov 2026 18:06 WITA (10:06 UTC). All 7 packages live on Onyx after the GPAO approval gate (first submit 17:15 WITA, all stored inert, 5 passed checks, 2 in review queue; enabled by 10:05 UTC, about 50 minutes after passing). Resume run re-verified all 7 byte-identical (re-add refused with PkgExistError, as designed) and stored test report #1 (vulnmint, score 75, RC-02 at line 41, tx OSWTRLJrmBFTN0o4mAygIgF4+vssHaI7P7WvpU3q1T8=, height 1448446). Report #2 (adminbackdoor, score 37, tx GrhQXkQ4N+8OvWqfj5zSArTy/ns+hdQSulpBdV1hVuk=, height 1448498) stored and verified the same day. Live paths: https://onyx.testnets.gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck and the five demo realms under the same namespace. Full record in docs/ONYX-DEPLOY.md sections 8 and 10. |
 | 5 | Name has no "Gno" prefix | DONE. The project is named RealmCheck. |
 | 6 | No mockups | DONE. Everything submitted is working code: rules, report realm, demo realms, UI, agent mode. No slides, no concept art, no mockup screens. |
@@ -90,13 +90,12 @@ Status as of 27 Nov 2026.
 
 ## 3. What is still TBD
 
-- **Demo video URL.** A local-chain cut exists
-  (docs/demo-video/realmcheck-demo.mp4, 107s, recorded 27 Nov 2026)
-  but is not uploaded anywhere. The Onyx re-record is still due
-  (docs/DEMO-VIDEO.md), then the upload needs Duan's explicit
-  approval. Owner step near submission: Duan's own voice is not
-  required by the hackathon rules as verified, but the video must
-  show the product working.
+- **Demo video URL.** The Onyx cut is ready
+  (docs/demo-video/realmcheck-demo.mp4, 103.0s, recorded 27 Nov 2026
+  against the live Onyx deploy, QA passed) but is not uploaded
+  anywhere. The upload needs Duan's explicit approval. Owner step
+  near submission: Duan's own voice is not required by the hackathon
+  rules as verified, but the video must show the product working.
 - **Onyx deploy verification.** DONE 27 Nov 2026 18:06 WITA
   (10:06 UTC): all 7 packages live on Onyx, byte-verified against
   the repo, test report #1 (vulnmint, score 75) and report #2
