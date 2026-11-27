@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T06:53:07.745Z",
+  "generatedAt": "2026-11-27T06:56:31.759Z",
   "note": "Local demo sources, bundled with the UI. These realms do not exist on Onyx yet; they deploy with the M6 release.",
   "realms": [
     {
