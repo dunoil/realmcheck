@@ -14,14 +14,10 @@
 # with a "not configured" style error: that means the setting, not
 # the build, is missing.
 #
-# VITE_REALMCHECK_REALM is NOT set here yet on purpose: the UI default
-# is still the local placeholder namespace (gno.land/r/dunoil/realmcheck),
-# which is what the local end-to-end harness expects. Once the Onyx
-# deploy is verified, add it to the Build step env:
-#   VITE_REALMCHECK_REALM=gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck
-# and see the post-deploy draft in docs/SUBMISSION.md. Do not set it
-# before the deploy is verified: "View stored report" would point at
-# a realm that does not exist on Onyx yet.
+# VITE_REALMCHECK_REALM is set below: the Onyx deploy is verified
+# (27 Nov 2026, all 7 packages live), so the UI default is the
+# deployed report realm. See docs/SUBMISSION.md section 5 and
+# docs/ONYX-DEPLOY.md section 10 for the deploy record.
 
 name: Deploy UI to GitHub Pages
 
@@ -62,6 +58,8 @@ jobs:
 
       - name: Build
         working-directory: ui
+        env:
+          VITE_REALMCHECK_REALM: gno.land/r/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu/realmcheck
         run: npm run build
 
       - name: Upload Pages artifact
