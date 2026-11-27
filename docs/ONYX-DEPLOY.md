@@ -9,8 +9,13 @@ failure notes the script cannot cover on its own.
 
 Status 27 Nov 2026: the script is validated end to end against a fresh
 local chain (`--local` run PASSED, see section 6). The real Onyx deploy
-has NOT run yet: it is blocked on faucet funds and on gnokey reachability
-from this VM (see sections 2 and 5).
+has NOT run yet: it is blocked only on faucet funds. The gnokey
+reachability blocker (section 5) is now worked around by the offline-sign
+path: `scripts/offline-sign-deploy.sh` signs with gnokey offline and
+broadcasts with curl, and that path is proven end to end on a local chain
+and proven to reach the Onyx node (see section 9). Once the deployer key
+holds at least 20 GNOT, run the offline-sign script; `deploy-onyx.sh`
+remains the alternative for a machine where gnokey itself can reach Onyx.
 
 ## 1. What gets deployed, in order
 
@@ -41,17 +46,21 @@ The other three demo realms have no imports between them.
   into the key.
 - At least 20 GNOT on that address (see section 3). The script refuses
   to run below 20 GNOT and never attempts a transaction without funds.
-- A machine from which **gnokey itself can reach the Onyx RPC**. This is
+- A way to get a signed transaction to the Onyx RPC. The default path is
+  the offline-sign deploy (`scripts/offline-sign-deploy.sh`, section 9):
+  gnokey signs offline and curl broadcasts, so gnokey itself never needs
+  to reach the RPC. The older path (`scripts/deploy-onyx.sh`) needs a
+  machine from which **gnokey itself can reach the Onyx RPC**. This is
   a real constraint, verified 27 Nov 2026: gnokey builds its own HTTP
   client with no proxy support, so on a machine behind an egress proxy
   it connects directly and the direct path to the Onyx RPC does not
   complete a TLS handshake (`tls: first record does not look like a TLS
   handshake`). curl and node reach the RPC fine through the proxy;
-  gnokey does not. The script probes gnokey reachability before any
-  transaction and stops with this diagnosis when the probe fails. The
-  deploy therefore runs from a machine with direct internet access (for
-  example the owner's PC with the toolchain and the funded key), not
-  from this VM. See section 5.
+  gnokey does not. The direct script probes gnokey reachability before
+  any transaction and stops with this diagnosis when the probe fails.
+  The deploy therefore runs from a machine with direct internet access
+  (for example the owner's PC with the toolchain and the funded key), not
+  from this VM, unless the offline-sign script is used. See section 5.
 
 ## 3. Funding the key (faucet)
 
@@ -209,6 +218,10 @@ Consequences:
 Workaround: run `scripts/deploy-onyx.sh` from a machine with direct
 internet access. That machine needs the toolchain, this repo, the funded
 gnokey key, and the key password. Nothing else about the deploy changes.
+The preferred workaround is the offline-sign path instead
+(`scripts/offline-sign-deploy.sh`, section 9): it runs from this VM, it
+needs no direct egress for gnokey, and it is proven end to end on a local
+chain and proven to reach the Onyx node.
 
 ## 6. Validation evidence (local chain, 27 Nov 2026)
 
@@ -242,6 +255,19 @@ Onyx-mode funding gate, tested live with the unfunded key
 (0ugnot) through the curl path, printed the faucet steps, and exited
 with `RESULT: BLOCKED (funds missing, faucet step above)`, exit code 1,
 no transaction attempted.
+
+Offline-sign path, same day: `bash scripts/offline-sign-deploy.sh
+--local` PASSED end to end on a fresh local chain (exit 0,
+`RESULT: PASSED (offline-sign deploy complete and verified)`), using the
+real Onyx deployer key `realmcheck-onyx` funded locally with 100 GNOT.
+All 7 packages deployed and byte-verified, test SubmitReport stored as
+report #1 (score 75, RC-02@41, auditor the deployer). Gas used matched
+the direct script within a few thousand per package (auditrules
+62,350,998; realmcheck 13,940,292; vulnmint 6,839,530; greedystore
+5,965,020; luckydice 9,505,594; unguardedvault 8,164,188; adminbackdoor
+10,015,764; SubmitReport 9,285,027). Full log:
+`scripts/offline-work/run-local-20261127-071102.log` (gitignored work
+dir). See section 9 for the flow and the Onyx broadcast test.
 
 ## 7. Rollback and retry notes
 
@@ -312,3 +338,221 @@ no transaction attempted.
 5. Update the README status line (it currently says the Onyx deploy is
    blocked on faucet funds) and the UI copy that says the demo realms
    do not exist on Onyx yet.
+
+## 9. Offline-sign deploy path (proven 27 Nov 2026)
+
+This is the deploy path that runs from this VM despite the section 5
+blocker. It never asks gnokey to touch the network: gnokey only builds
+the unsigned tx and signs it, both offline, and curl does every network
+call (account query, broadcast, verification), because curl honors the
+egress proxy and gnokey does not. The script is
+`scripts/offline-sign-deploy.sh`; it mirrors `deploy-onyx.sh` exactly in
+staging, namespace swap, deploy order, gas settings, the 20 GNOT funding
+gate, and verification, and differs only in how a transaction gets to the
+chain.
+
+### The five steps, per transaction
+
+All five are implemented in the script's `offline_tx` function. The
+example below is one addpkg; a `call` (SubmitReport) and a `send` work
+the same way with their own maketx subcommand and flags.
+
+```bash
+export PATH="$PATH:$HOME/workspace/tools/go/bin:$HOME/workspace/tools/gno/bin"
+export GNOROOT="$HOME/workspace/tools/gno"
+GNOKEY_HOME="$HOME/workspace/gnome-tavern-hackathon/.gnokey"
+DEPLOYER=g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu
+RPC="https://rpc.onyx.testnets.gno.land:443"
+
+# 1. Unsigned tx: maketx with -broadcast=false prints the unsigned Amino
+#    JSON tx document to stdout. Verified from the source
+#    (gno.land/pkg/keyscli/addpkg.go, execMakeAddPkg): with Broadcast
+#    false it runs io.Println(string(amino.MustMarshalJSON(tx))) and
+#    returns, so there is no account query, no simulation, no password,
+#    and no chain contact at all. Verified live: the same command with
+#    the unreachable Onyx remote exits 0 and prints pure JSON.
+gnokey maketx addpkg -broadcast=false \
+  -pkgpath "gno.land/p/$DEPLOYER/auditrules" \
+  -pkgdir scripts/onyx-deploy-work/stage/auditrules \
+  -gas-fee 140000ugnot -gas-wanted 70000000 \
+  -chainid onyx-1 -remote "$RPC" -home "$GNOKEY_HOME" realmcheck-onyx \
+  > unsigned.json
+
+# 2. Account number and sequence, over curl (proxy-aware). The query path
+#    is auth/accounts/<address>, verified from the source
+#    (gno.land/pkg/gnoclient/client_queries.go, QueryAccount, and
+#    tm2/pkg/crypto/keys/client/maketx.go, SignAndBroadcastHandler, which
+#    queries the same path and unmarshals BaseAccount). The ABCI Data
+#    field is base64; it decodes to JSON with a BaseAccount object whose
+#    account_number and sequence are strings. A never-seen address
+#    returns Data "null": that is a new account, number 0 and sequence 0,
+#    which is also what gnokey's own maketx would sign with after its
+#    account query unmarshals the same null.
+curl -s -G "$RPC/abci_query" \
+  --data-urlencode 'path="auth/accounts/g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu"' \
+  --data-urlencode 'data=0x'
+
+# 3. Sign offline. gnokey sign reads the tx doc, signs it with the key,
+#    and, with no -output-document, writes the signed doc back over the
+#    same file (tm2/pkg/crypto/keys/client/sign.go, execSign and saveTx).
+#    It makes no network call. The password comes from the password file
+#    on stdin and is never printed or passed on a command line.
+gnokey sign -tx-path unsigned.json \
+  -account-number <N> -account-sequence <S> -chainid onyx-1 \
+  -home "$GNOKEY_HOME" -insecure-password-stdin realmcheck-onyx \
+  < .gnokey/password.txt
+
+# 4. Signed Amino JSON to binary Amino bytes, with scripts/txbin/txbin.
+#    It performs exactly the two calls gnokey's own BroadcastHandler
+#    makes (tm2/pkg/crypto/keys/client/broadcast.go): amino.UnmarshalJSON
+#    into a std.Tx, then amino.Marshal. See "The txbin helper" below.
+scripts/txbin/txbin unsigned.json unsigned.bin
+#    stdout: the base64-encoded binary bytes, ready for the RPC.
+
+# 5. Broadcast with curl: a JSON-RPC POST of broadcast_tx_commit with the
+#    base64 bytes as the tx parameter. broadcast_tx_commit waits for the
+#    tx to commit and returns check_tx, deliver_tx, hash, and height in
+#    one response. (broadcast_tx_sync also works; it returns only the
+#    check_tx result and the hash, so the script uses commit.)
+curl -s -X POST -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":"realmcheck-1","method":"broadcast_tx_commit","params":{"tx":"<base64>"}}' \
+  "$RPC/"
+```
+
+The sequence matters: the account query (step 2) is re-run before every
+transaction, because each committed tx increments the sequence by 1. A
+stale sequence is refused with a signature verification error, so never
+reuse one query for two transactions.
+
+### The txbin helper
+
+`scripts/txbin/` holds a small Go program (`main.go`, `go.mod`,
+`go.sum`, `README.md`) that converts a signed Amino JSON tx document to
+binary Amino bytes and prints the base64 form on stdout. It does exactly
+what `gnokey broadcast` does before its network call:
+
+```go
+var tx std.Tx
+amino.UnmarshalJSON(jsonbz, &tx) // execBroadcast, same call
+bz, err := amino.Marshal(tx)     // BroadcastHandler, same call
+```
+
+The blank imports of `gno.land/pkg/sdk/vm` and `tm2/pkg/sdk/bank`
+register the message types (`MsgAddPackage`, `MsgCall`, `MsgRun`,
+`MsgSend`) with the global Amino codec, the same registration gnokey
+gets by importing `keyscli`; without them the JSON unmarshal cannot
+decode the concrete message inside the tx. `go.mod` pins the local Gno
+source with a `replace` directive (`github.com/gnolang/gno =>
+../../../tools/gno`), so the helper always matches the installed gnokey
+version. Build it with `go build -o txbin .` in `scripts/txbin/`; the
+binary is gitignored and `scripts/offline-sign-deploy.sh` builds it
+automatically when it is missing or stale.
+
+### Running it
+
+```bash
+# 1. Dry run: stage, swap, verify, print every command. No chain contact.
+bash scripts/offline-sign-deploy.sh --check
+
+# 2. Local rehearsal: full deploy against a fresh local gnodev chain,
+#    funded for the real Onyx key (100 GNOT). Proves the whole path,
+#    including the real key and its password file.
+bash scripts/offline-sign-deploy.sh --local
+
+# 3. Real deploy. Same 20 GNOT funding gate as deploy-onyx.sh; refuses
+#    to run below 20 GNOT and never attempts a transaction without funds.
+bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu
+```
+
+Options: `--rpc` and `--chainid` override the Onyx defaults,
+`--home` overrides the gnokey home (default `$PROJECT/.gnokey`),
+`--password-file` overrides the password file (default
+`$PROJECT/.gnokey/password.txt`). Without a password file, `gnokey sign`
+prompts interactively. Logs and per-transaction artifacts (unsigned and
+signed docs, binary bytes, base64, broadcast responses) land in
+`scripts/offline-work/` (gitignored).
+
+### Local validation (27 Nov 2026, PASSED)
+
+`bash scripts/offline-sign-deploy.sh --local`, exit 0,
+`RESULT: PASSED (offline-sign deploy complete and verified)`. Full log:
+`scripts/offline-work/run-local-20261127-071102.log`. A manual MsgSend
+probe through the same five steps also committed first (gas used
+927,746, height 3, hash
+`O0n85NvOoIjimXF8qTdvwZ5UZbfxzqv2EbPA1zHkspE=`; the account sequence
+moved 0 to 1 and the balance dropped by exactly the 2,000ugnot fee).
+The full run then deployed all 7 packages with byte verification and
+stored the test SubmitReport as report #1 (score 75, RC-02@41, auditor
+the deployer). Gas used per package is in section 6. One probe detail
+worth keeping: the first manual send used gas-wanted 100,000 and the
+node refused it in check_tx with `std.OutOfGasError`, gas used 311,584
+during the ante handler alone, so a plain send needs on the order of
+1,000,000 gas-wanted; the addpkg and SubmitReport values in section 4
+already carry far more than that.
+
+### Onyx broadcast test (27 Nov 2026, unfunded key)
+
+One small transaction, a MsgSend of 1,000ugnot from the deployer to
+itself (gas-wanted 2,000,000, gas-fee 4,000ugnot, chain id onyx-1,
+account number 0, sequence 0), signed offline with `realmcheck-onyx`,
+converted with txbin (260 binary bytes), and broadcast with curl to
+`https://rpc.onyx.testnets.gno.land:443/` `broadcast_tx_commit`. The
+exact node response (full JSON in
+`scripts/offline-work/onyx-send-broadcast.json`):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "realmcheck-onyx-test-1",
+  "result": {
+    "check_tx": {
+      "ResponseBase": {
+        "Error": { "@type": "/std.UnknownAddressError" },
+        "Log": "--= Error =--\nData: std.UnknownAddressError{abciError:std.abciError{}}\nMsg Traces:\n    0  /gnoroot/tm2/pkg/std/errors.go:102 - account g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu does not exist\nStack Trace:\n    0  /gnoroot/tm2/pkg/errors/errors.go:93\n    1  /gnoroot/tm2/pkg/std/errors.go:102\n    2  /gnoroot/tm2/pkg/sdk/auth/ante.go:391\n    3  /gnoroot/tm2/pkg/sdk/auth/ante.go:163\n    4  /gnoroot/gno.land/pkg/gnoland/app.go:242\n    5  /gnoroot/tm2/pkg/sdk/baseapp.go:1057\n    6  /gnoroot/tm2/pkg/sdk/baseapp.go:709\n    7  /gnoroot/tm2/pkg/bft/abci/client/local_client.go:103\n    8  /gnoroot/tm2/pkg/bft/appconn/app_conn.go:115\n    9  /gnoroot/tm2/pkg/bft/mempool/clist_mempool.go:284\n   10  /gnoroot/tm2/pkg/bft/mempool/clist_mempool.go:214\n... 18 more lines elided"
+      },
+      "GasWanted": "0",
+      "GasUsed": "0"
+    },
+    "deliver_tx": { "ResponseBase": { "Error": null }, "GasWanted": "0", "GasUsed": "0" },
+    "hash": "eJcSIYd72SU1siKKI6wqndinThWlk4QMmCN4VnFItEo=",
+    "height": "0"
+  }
+}
+```
+
+`broadcast_tx_sync` with the same bytes returns the identical
+`UnknownAddressError` and the identical hash
+`eJcSIYd72SU1siKKI6wqndinThWlk4QMmCN4VnFItEo=` (full JSON in
+`scripts/offline-work/onyx-send-broadcast-sync.json`).
+
+What this proves, and what it does not:
+
+- Proved: curl reaches the Onyx RPC and the node accepts the
+  `broadcast_tx_commit` call; the node decoded the binary Amino bytes
+  into a valid tx (it extracted the signer address and looked the
+  account up); the encoding, the JSON-RPC shape, and the broadcast
+  mechanics all work against the real Onyx node.
+- The rejection is `UnknownAddressError`, "account ... does not exist",
+  from the ante handler's signer-account lookup
+  (`tm2/pkg/sdk/auth/ante.go:391`, `GetSignerAcc`). That lookup runs
+  before signature verification and before any funds check, so the
+  chain never got far enough to check the signature or the balance.
+  This is the expected outcome for a never-funded key: the account
+  query for the deployer returns Data `null` and the balance is
+  0ugnot, so the account does not exist on Onyx yet. It is not a funds
+  error, and it is not an encoding error.
+- Not proved by this test alone: that the signature verifies. That is
+  proved by the local run instead, where the same five steps committed
+  8 transactions (7 addpkg plus the test SubmitReport) with valid
+  signatures, each at the next sequence. Together the two tests cover
+  the whole path: local proves sign plus encode plus execute, Onyx
+  proves the bytes reach the real node and decode there.
+
+What remains before the real Onyx deploy: only funding. Fund the key
+at https://faucet.gno.land (100 GNOT covers the measured 12.05 GNOT
+whole-deploy cost several times over), then run
+`bash scripts/offline-sign-deploy.sh --key realmcheck-onyx --deployer
+g1wt8ndw7u974eazjaxvfjw23w6xrw689cv0ueuu`. The funding creates the
+account on chain, so the `UnknownAddressError` goes away with it, and
+the deployer's account number and sequence will then come back from
+the step 2 query instead of 0 and 0.

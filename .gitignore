@@ -17,6 +17,7 @@
 scripts/e2e-work/
 scripts/e2e-work-stage/
 scripts/onyx-deploy-work/
+scripts/offline-work/
 agent/m5-work/
 agent/stage/
 m4-verify/
@@ -31,6 +32,9 @@ ui/node_modules/
 ui/dist/
 node_modules/
 dist/
+
+# Built txbin binary (rebuilt from scripts/txbin/main.go when needed)
+scripts/txbin/txbin
 
 # OS and editor files
 .DS_Store
